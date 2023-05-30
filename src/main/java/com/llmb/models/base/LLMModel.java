@@ -9,13 +9,13 @@ import java.util.List;
  * @author LiangTao
  * @date 2023年05月26 11:30
  **/
-public interface LLMModel<C extends ChatConfig> {
-    Flowable<LLMMessage> streamChatCompletion(C chatConfig, List<LLMMessage> chatMsgs);
+public interface LLMModel<C extends ChatConfig, MI extends LLMMessage,MO extends LLMMessage> {
+    Flowable<MO> streamChatCompletion(C chatConfig, List<MI> chatMsgs);
 
-    Flowable<LLMMessage> streamChatCompletion(List<LLMMessage> chatMsgs);
+    Flowable<MO> streamChatCompletion(List<MI> chatMsgs);
 
-    LLMMessage createChatCompletion(C chatConfig, List<LLMMessage> chatMsgs);
+    List<MO> createChatCompletion(C chatConfig, List<MI> chatMsgs);
 
-    LLMMessage createChatCompletion(List<LLMMessage> chatMsgs);
+    List<MO> createChatCompletion(List<MI> chatMsgs);
 
 }

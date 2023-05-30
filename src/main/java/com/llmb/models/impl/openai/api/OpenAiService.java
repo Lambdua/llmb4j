@@ -78,10 +78,10 @@ public class OpenAiService {
     }
 
     public OpenAiService(final String token, final Duration timeout, final String baseUrl, PoolProperties poolProperties) {
+        this.baseUrl = baseUrl;
         ObjectMapper mapper = defaultObjectMapper();
         OkHttpClient client = poolClient(token, timeout, poolProperties);
         Retrofit retrofit = defaultRetrofit(client, mapper);
-        this.baseUrl = baseUrl;
         this.api = retrofit.create(OpenAiApi.class);
     }
 

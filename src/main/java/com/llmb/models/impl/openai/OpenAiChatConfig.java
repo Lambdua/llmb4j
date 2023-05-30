@@ -40,4 +40,12 @@ public class OpenAiChatConfig implements ChatConfig {
      */
     private double presencePenalty;
 
+
+    /**
+     * How many chat completion chatCompletionChoices to generate for each input message.
+     */
+    Integer n;
+
+
+
 }

@@ -1,8 +1,10 @@
 package com.llmb.prompt.chat;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @AllArgsConstructor
+@Getter
 public enum ChatRole{
     SYSTEM("system") ,
     USER("user") ,
@@ -10,5 +12,5 @@ public enum ChatRole{
     ;
 
 
-    String name;
+    final String value;
 }
