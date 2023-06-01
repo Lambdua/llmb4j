@@ -1,0 +1,10 @@
+[httpPool]
+# 连接池最小大小
+poolSize=10
+maxRequest=100
+maxRequestPerHost=100
+keepAliveTime=30
+
+[openai]
+baseUrl=https://api.openai.com/
+apiKey=sk-xxxxxxx

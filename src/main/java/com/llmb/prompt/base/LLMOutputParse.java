@@ -6,9 +6,8 @@ package com.llmb.prompt.base;
  * @author LiangTao
  * @date 2023年05月25 16:06
  **/
-public interface LLMOutputParse<IN extends LLMMessage> {
-    default Object parse(IN msg){
-        return msg.getMsg();
-    }
+@FunctionalInterface
+public interface LLMOutputParse<M extends LLMMessage<?>,O>{
+    O parse(M msg);
 
 }

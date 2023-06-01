@@ -1,6 +1,6 @@
 package com.llmb.prompt.chat;
 
-import com.llmb.prompt.base.LLMMessage;
+import com.llmb.prompt.base.LLMStrMessage;
 
 /**
  * @param msg 消息内容
@@ -8,7 +8,7 @@ import com.llmb.prompt.base.LLMMessage;
  * @author LiangTao
  * @date 2023年05月25 17:25
  **/
-public record ChatMessage(String msg, ChatRole role) implements LLMMessage {
+public record ChatMessage(String msg, ChatRole role) implements LLMStrMessage {
     public ChatMessage(String msg, ChatRole role) {
         this.msg = msg;
         this.role = role;

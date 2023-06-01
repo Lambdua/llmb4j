@@ -8,10 +8,10 @@ import java.util.Map;
  * @author LiangTao
  * @date 2023年05月25 16:04
  **/
-public interface LLMInputParse<M extends LLMMessage>{
+public interface LLMInputParse<M extends LLMMessage<?>,T>{
 
-    M toMsg(Object target,Record argsPayload);
+    M toMsg(T target,Record argsPayload);
 
-    M toMsg(Object target, Map<String,Object> argsPayload);
+    M toMsg(T target, Map<String,Object> argsPayload);
 
 }

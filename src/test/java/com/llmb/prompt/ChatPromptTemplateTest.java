@@ -1,9 +1,9 @@
 package com.llmb.prompt;
 
 import cn.hutool.core.lang.Assert;
+import com.llmb.prompt.chat.ChatMessage;
 import com.llmb.prompt.chat.ChatPromptTemplate;
 import com.llmb.prompt.chat.ChatRole;
-import com.llmb.prompt.chat.ChatMessage;
 import org.junit.Test;
 
 import java.util.Map;
@@ -48,4 +48,14 @@ public class ChatPromptTemplateTest {
         Assert.equals(result, parse);
     }
 
+
+    @Test
+    public void custInOutParseTest(){
+        ChatPromptTemplate chatPromptTemplate = new ChatPromptTemplate();
+        chatPromptTemplate.setOutputParse(msg->msg.getMsg().length());
+        ChatMessage msg = chatPromptTemplate.toMsg(template, Map.of("param", "map声明方式", "name", "姓名", "age", 18, "测试", true, "chatRole", ChatRole.AI));
+        Assert.equals(ChatRole.AI, msg.role());
+        Integer size=chatPromptTemplate.parse(msg);
+        Assert.equals(64,size);
+    }
 }
