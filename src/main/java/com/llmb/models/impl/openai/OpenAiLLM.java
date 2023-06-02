@@ -22,36 +22,35 @@ import static com.llmb.util.SettingUtil.PROMPT;
  * @date 2023年05月29 11:16
  **/
 @Slf4j
-public class OpenAiLLM extends AbstractLLMModel<OpenAiChatConfig, ChatMessage, ChatMessage> {
+public class OpenAiLLM extends AbstractLLMModel<OpenAiLLmConfig, ChatMessage, ChatMessage> {
     private final OpenAiService openAiService;
 
-    private OpenAiChatConfig defaultChatConfig;
+    private OpenAiLLmConfig defaultChatConfig;
 
 
-    public void setDefaultChatConfig(OpenAiChatConfig defaultChatConfig) {
+    public void setDefaultChatConfig(OpenAiLLmConfig defaultChatConfig) {
         this.defaultChatConfig = defaultChatConfig;
     }
 
     public OpenAiLLM() {
         this.defaultChatConfig = withDefault();
-        this.openAiService = new OpenAiService(OpenAiChatConfig.apiKey, Duration.ofSeconds(30), OpenAiChatConfig.baseUrl, new PoolProperties());
+        this.openAiService = new OpenAiService(OpenAiLLmConfig.apiKey, Duration.ofSeconds(30), OpenAiLLmConfig.baseUrl, new PoolProperties());
     }
 
-    public OpenAiLLM(OpenAiChatConfig defaultChatConfig){
+    public OpenAiLLM(OpenAiLLmConfig defaultChatConfig){
         this.defaultChatConfig = defaultChatConfig;
-        this.openAiService = new OpenAiService(OpenAiChatConfig.apiKey, Duration.ofSeconds(30), OpenAiChatConfig.baseUrl, new PoolProperties());
+        this.openAiService = new OpenAiService(OpenAiLLmConfig.apiKey, Duration.ofSeconds(30), OpenAiLLmConfig.baseUrl, new PoolProperties());
     }
 
-    public OpenAiLLM(OpenAiChatConfig defaultChatConfig, OpenAiService openAiService){
+    public OpenAiLLM(OpenAiLLmConfig defaultChatConfig, OpenAiService openAiService){
         this.defaultChatConfig = defaultChatConfig;
         this.openAiService = openAiService;
     }
 
 
 
-
-    private OpenAiChatConfig withDefault() {
-        OpenAiChatConfig openAiChatConfig = new OpenAiChatConfig();
+    private OpenAiLLmConfig withDefault() {
+        OpenAiLLmConfig openAiChatConfig = new OpenAiLLmConfig();
         openAiChatConfig.setSystemPrompt(PROMPT.get("prompt", "defaultSystemPrompt"));
         openAiChatConfig.setTemperature(0);
         openAiChatConfig.setPresencePenalty(0);
@@ -62,12 +61,12 @@ public class OpenAiLLM extends AbstractLLMModel<OpenAiChatConfig, ChatMessage, C
 
 
     @Override
-    public OpenAiChatConfig getChatConfig() {
+    public OpenAiLLmConfig getConfig() {
        return this.defaultChatConfig;
     }
 
     @Override
-    public Flowable<ChatMessage> doStreamChat(OpenAiChatConfig chatConfig, List<ChatMessage> chatMsgs) {
+    public Flowable<ChatMessage> doStreamChat(OpenAiLLmConfig chatConfig, List<ChatMessage> chatMsgs) {
         return openAiService.streamChatCompletion(createRequest(chatConfig, chatMsgs, true))
                 .filter(item-> CharSequenceUtil.isNotEmpty(item.getChoices().get(0).getMessage().getContent()))
                 .map(response -> {
@@ -78,7 +77,7 @@ public class OpenAiLLM extends AbstractLLMModel<OpenAiChatConfig, ChatMessage, C
 
 
     @Override
-    public List<ChatMessage> doFullChat(OpenAiChatConfig chatConfig, List<ChatMessage> chatMsgs) {
+    public List<ChatMessage> doFullChat(OpenAiLLmConfig chatConfig, List<ChatMessage> chatMsgs) {
         List<ChatMessage> chatMessageResults = openAiService.createChatCompletion(createRequest(chatConfig, chatMsgs, false))
                 .getChoices().stream()
                 .map(response -> new ChatMessage(response.getMessage().getContent(), ChatRole.AI))
@@ -87,7 +86,7 @@ public class OpenAiLLM extends AbstractLLMModel<OpenAiChatConfig, ChatMessage, C
     }
 
 
-    private ChatCompletionRequest createRequest(OpenAiChatConfig chatConfig, List<ChatMessage> chatMsgs, boolean isStream) {
+    private ChatCompletionRequest createRequest(OpenAiLLmConfig chatConfig, List<ChatMessage> chatMsgs, boolean isStream) {
         List<com.theokanning.openai.completion.chat.ChatMessage> messages = new ArrayList<>();
         messages.add(0, new com.theokanning.openai.completion.chat.ChatMessage(ChatRole.SYSTEM.getValue(), chatConfig.getSystemPrompt()));
         chatMsgs.stream()

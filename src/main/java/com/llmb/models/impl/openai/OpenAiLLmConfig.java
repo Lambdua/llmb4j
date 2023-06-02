@@ -1,6 +1,6 @@
 package com.llmb.models.impl.openai;
 
-import com.llmb.models.base.ChatConfig;
+import com.llmb.models.base.LLmConfig;
 import lombok.Data;
 
 import static com.llmb.util.SettingUtil.SETTING;
@@ -10,7 +10,7 @@ import static com.llmb.util.SettingUtil.SETTING;
  * @date 2023年05月29 11:32
  **/
 @Data
-public class OpenAiChatConfig implements ChatConfig {
+public class OpenAiLLmConfig implements LLmConfig {
 
     public static final String baseUrl;
 

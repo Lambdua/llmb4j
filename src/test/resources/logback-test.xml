@@ -4,14 +4,12 @@
     <conversionRule conversionWord="dynamic" converterClass="com.llmb.log.DynamicTypeConverter"/>
 
     <!--通用颜色日志输出-->
-    <property name="GENERAL_COLOR_PATTERN"
-              value="%clr(%d{yyyy-MM-dd HH:mm:ss}){bold,green} %clr(%-5level) %clr([%thread]){bright-cyan} %clr(%logger) %m%n"/>
-
-    <!--通用无颜色日志输出-->
-    <property name="GENERAL_NO_COLOR_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger %m%n"/>
+    <property name="GENERAL_COLOR_PATTERN" value="%clr(%d{yyyy-MM-dd HH:mm:ss}){bold,green} %clr(%-5level) %clr([%thread]){bright-cyan} %clr(%logger) %m%n"/>
 
     <!--ai-chat日志输出-->
     <property name="AI_CHAT_COLOR_PATTERN" value="%clr(%dynamic: %n  %m){dynamic} %n "/>
+
+    <property name="AI_CHAT_PATTERN" value="%dynamic: %n  %m %n "/>
 
 
     <appender name="GENERAL_CONCOLE" class="ch.qos.logback.core.ConsoleAppender">
@@ -27,26 +25,18 @@
     </appender>
 
     <appender name="AI_CHAT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/ai-chat.log</file>
+        <file>logs/llm.log</file>
         <encoder>
-            <Pattern>${AI_CHAT_COLOR_PATTERN}</Pattern>
+            <Pattern>${AI_CHAT_PATTERN}</Pattern>
             <charset>UTF-8</charset>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/ai-chat.%d{yyyy-MM}.%i.log</fileNamePattern>
+            <fileNamePattern>logs/llm.%d{yyyy-MM}.%i.log</fileNamePattern>
             <maxFileSize>100MB</maxFileSize>
         </rollingPolicy>
         <append>true</append>
     </appender>
 
-
-    <appender name="GENERAL_NO_COLOR" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <Pattern>%clr(%d{yyyy-MM-dd HH:mm:ss}){faint} %clr(%-5level) %clr([%thread]){bright-cyan}
-                %clr(%logger)%m%n
-            </Pattern>
-        </encoder>
-    </appender>
 
     <logger name="aiChat" level="trace" additivity="false">
         <appender-ref ref="AI_CHAT_CONSOLE"/>

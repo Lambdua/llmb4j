@@ -1,18 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <conversionRule conversionWord="clr" converterClass="com.llmb.log.ColorConverter"/>
+    <conversionRule conversionWord="dynamic" converterClass="com.llmb.log.DynamicTypeConverter"/>
 
-    <!--使用%red()将要变色的模式包起来-->
-    <property name="CONSOLE_GENERAL_LOG_PATTERN" value="%red(%d{yyyy-MM-dd HH:mm:ss}) %-5p %C:%L-%m%n" />
+    <!--通用颜色日志输出-->
+    <property name="GENERAL_COLOR_PATTERN" value="%clr(%d{yyyy-MM-dd HH:mm:ss}){bold,green} %clr(%-5level) %clr([%thread]){bright-cyan} %clr(%logger) %m%n"/>
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <!--ai-chat日志输出-->
+    <property name="AI_CHAT_COLOR_PATTERN" value="%clr(%dynamic: %n  %m){dynamic} %n "/>
+
+    <property name="AI_CHAT_PATTERN" value="%dynamic: %n  %m %n "/>
+
+
+    <appender name="GENERAL_CONCOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <Pattern>%clr(%date{yyyy-MM-dd HH:mm:ss}){faint} %-5p %C:%L-%m%n</Pattern>
+            <Pattern>${GENERAL_COLOR_PATTERN}</Pattern>
         </encoder>
     </appender>
 
+    <appender name="AI_CHAT_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <Pattern>${AI_CHAT_COLOR_PATTERN}</Pattern>
+        </encoder>
+    </appender>
 
-    <root level="trace">
-        <appender-ref ref="STDOUT" />
+    <appender name="AI_CHAT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/llm.log</file>
+        <encoder>
+            <Pattern>${AI_CHAT_PATTERN}</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/llm.%d{yyyy-MM}.%i.log</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+        </rollingPolicy>
+        <append>true</append>
+    </appender>
+
+
+    <logger name="aiChat" level="trace" additivity="false">
+        <appender-ref ref="AI_CHAT_CONSOLE"/>
+        <appender-ref ref="AI_CHAT_FILE"/>
+    </logger>
+
+
+    <root level="info">
+        <appender-ref ref="GENERAL_CONCOLE"/>
     </root>
 </configuration>

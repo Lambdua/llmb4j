@@ -6,9 +6,12 @@ import ch.qos.logback.core.pattern.CompositeConverter;
 import cn.hutool.core.lang.ansi.AnsiColor;
 import cn.hutool.core.lang.ansi.AnsiElement;
 import cn.hutool.core.lang.ansi.AnsiStyle;
+import cn.hutool.core.util.RandomUtil;
+import com.llmb.util.LLmConstants;
 import org.slf4j.MDC;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author LiangTao
@@ -44,6 +47,8 @@ public class ColorConverter extends CompositeConverter<ILoggingEvent> {
 
     private static final Map<Integer, AnsiElement> LEVELS;
 
+    private  AtomicInteger previousRandomColorIndex = new AtomicInteger(1);
+
     static {
         Map<Integer, AnsiElement> ansiLevels = new HashMap<>();
         ansiLevels.put(Level.ERROR_INTEGER, AnsiColor.RED);
@@ -55,12 +60,13 @@ public class ColorConverter extends CompositeConverter<ILoggingEvent> {
     protected String transform(ILoggingEvent event, String in) {
         List<AnsiElement> ansiS = Optional.ofNullable(getOptionList()).orElse(Collections.emptyList())
                 .stream()
-                .filter(item->ELEMENTS.containsKey(item) || "dynamic".equals(item))
-                .map(item->{
+                .filter(item -> ELEMENTS.containsKey(item) || "dynamic".equals(item))
+                .map(item -> {
                     if (ELEMENTS.containsKey(item)) {
                         return ELEMENTS.get(item);
                     } else {
-                        return Optional.ofNullable(MDC.get("chatType")).map(ChatStyle::fromType).map(style -> style.contentStyles).orElse(AnsiColor.GREEN);
+                        return Optional.ofNullable(MDC.get(LLmConstants.llmLogTypeKey)).map(LLmLogStyle::fromType).map(style -> style.contentStyles)
+                                .orElse(getRandomColor());
                     }
                 })
                 .toList();
@@ -76,7 +82,17 @@ public class ColorConverter extends CompositeConverter<ILoggingEvent> {
         return toAnsiString(elements);
     }
 
-    protected String toAnsiString(Object...elements) {
+    private AnsiElement getRandomColor() {
+        AnsiColor[] colors = AnsiColor.values();
+        int randomColorIndex;
+        do {
+            randomColorIndex = RandomUtil.randomInt(1, 16);
+        } while (randomColorIndex == previousRandomColorIndex.get());
+        previousRandomColorIndex.set(randomColorIndex);
+        return colors[randomColorIndex];
+    }
+
+    protected String toAnsiString(Object... elements) {
         return AnsiOutput.toString(elements);
     }
 

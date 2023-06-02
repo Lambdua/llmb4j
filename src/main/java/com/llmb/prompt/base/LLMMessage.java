@@ -14,5 +14,8 @@ public interface  LLMMessage<S>{
      **/
     S getMsg();
 
+    default String getMsgStr(){
+        return getMsg().toString();
+    }
 
 }
