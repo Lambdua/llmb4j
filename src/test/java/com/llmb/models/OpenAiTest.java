@@ -26,9 +26,8 @@ public class OpenAiTest {
         record payload(String name, ChatRole role) {
         }
         ChatMessage request = chatPromptTemplate.toMsg(template, new payload("小明", ChatRole.USER));
-        Flowable<ChatMessage> chatMessageFlowable = openAiLLM.streamChatCompletion(Collections.singletonList(request));
+        Flowable<ChatMessage> chatMessageFlowable = openAiLLM.streamChat(Collections.singletonList(request));
         List<ChatMessage> chatMessages = chatMessageFlowable.toList().blockingGet();
-        log.info("{}", chatMessages.stream().map(item->item.role()+":"+item.msg()+System.lineSeparator()).reduce("", String::concat));
         Assert.notEmpty(chatMessages);
     }
 
@@ -39,8 +38,7 @@ public class OpenAiTest {
         String template = "你好，我的名字叫：{$name},我应该叫你什么？";
         record payload(String name, ChatRole role) { }
         ChatMessage request = chatPromptTemplate.toMsg(template, new payload("小明", ChatRole.USER));
-        List<ChatMessage> chatCompletion = openAiLLM.createChatCompletion(Collections.singletonList(request));
-        log.info("{}", chatCompletion.stream().map(item->item.role()+":"+item.msg()+System.lineSeparator()).reduce("", String::concat));
+        List<ChatMessage> chatCompletion = openAiLLM.fullChat(Collections.singletonList(request));
         Assert.notEmpty(chatCompletion);
     }
 

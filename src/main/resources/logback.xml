@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <conversionRule conversionWord="clr" converterClass="com.llmb.log.ColorConverter"/>
+
+    <!--使用%red()将要变色的模式包起来-->
+    <property name="CONSOLE_GENERAL_LOG_PATTERN" value="%red(%d{yyyy-MM-dd HH:mm:ss}) %-5p %C:%L-%m%n" />
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <Pattern>%clr(%date{yyyy-MM-dd HH:mm:ss}){faint} %-5p %C:%L-%m%n</Pattern>
+        </encoder>
+    </appender>
+
+
+    <root level="trace">
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>

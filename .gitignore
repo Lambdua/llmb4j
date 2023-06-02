@@ -13,7 +13,7 @@ target/
 *.ipr
 
 config.setting
-
+*.log
 ### Eclipse ###
 .apt_generated
 .classpath

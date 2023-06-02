@@ -1,7 +1,7 @@
 package com.llmb.models.impl.openai;
 
 import cn.hutool.core.text.CharSequenceUtil;
-import com.llmb.models.base.LLMModel;
+import com.llmb.models.base.AbstractLLMModel;
 import com.llmb.models.base.PoolProperties;
 import com.llmb.models.impl.openai.api.OpenAiService;
 import com.llmb.prompt.chat.ChatMessage;
@@ -22,7 +22,7 @@ import static com.llmb.util.SettingUtil.PROMPT;
  * @date 2023年05月29 11:16
  **/
 @Slf4j
-public class OpenAiLLM implements LLMModel<OpenAiChatConfig, ChatMessage, ChatMessage> {
+public class OpenAiLLM extends AbstractLLMModel<OpenAiChatConfig, ChatMessage, ChatMessage> {
     private final OpenAiService openAiService;
 
     private OpenAiChatConfig defaultChatConfig;
@@ -62,7 +62,12 @@ public class OpenAiLLM implements LLMModel<OpenAiChatConfig, ChatMessage, ChatMe
 
 
     @Override
-    public Flowable<ChatMessage> streamChatCompletion(OpenAiChatConfig chatConfig, List<ChatMessage> chatMsgs) {
+    public OpenAiChatConfig getChatConfig() {
+       return this.defaultChatConfig;
+    }
+
+    @Override
+    public Flowable<ChatMessage> doStreamChat(OpenAiChatConfig chatConfig, List<ChatMessage> chatMsgs) {
         return openAiService.streamChatCompletion(createRequest(chatConfig, chatMsgs, true))
                 .filter(item-> CharSequenceUtil.isNotEmpty(item.getChoices().get(0).getMessage().getContent()))
                 .map(response -> {
@@ -71,23 +76,16 @@ public class OpenAiLLM implements LLMModel<OpenAiChatConfig, ChatMessage, ChatMe
         });
     }
 
-    @Override
-    public Flowable<ChatMessage> streamChatCompletion(List<ChatMessage> chatMsgs) {
-        return streamChatCompletion(this.defaultChatConfig, chatMsgs);
-    }
 
     @Override
-    public List<ChatMessage> createChatCompletion(OpenAiChatConfig chatConfig, List<ChatMessage> chatMsgs) {
-        return openAiService.createChatCompletion(createRequest(chatConfig, chatMsgs, false))
+    public List<ChatMessage> doFullChat(OpenAiChatConfig chatConfig, List<ChatMessage> chatMsgs) {
+        List<ChatMessage> chatMessageResults = openAiService.createChatCompletion(createRequest(chatConfig, chatMsgs, false))
                 .getChoices().stream()
                 .map(response -> new ChatMessage(response.getMessage().getContent(), ChatRole.AI))
                 .toList();
+        return chatMessageResults;
     }
 
-    @Override
-    public List<ChatMessage> createChatCompletion(List<ChatMessage> chatMsgs) {
-        return createChatCompletion(this.defaultChatConfig, chatMsgs);
-    }
 
     private ChatCompletionRequest createRequest(OpenAiChatConfig chatConfig, List<ChatMessage> chatMsgs, boolean isStream) {
         List<com.theokanning.openai.completion.chat.ChatMessage> messages = new ArrayList<>();
@@ -95,7 +93,6 @@ public class OpenAiLLM implements LLMModel<OpenAiChatConfig, ChatMessage, ChatMe
         chatMsgs.stream()
                 .map(chatRecord -> new com.theokanning.openai.completion.chat.ChatMessage(chatRecord.role().getValue(), chatRecord.getMsg()))
                 .forEach(messages::add);
-        log.debug("{}msg-trace↓↓↓↓↓↓↓↓↓{}{}",System.lineSeparator(), System.lineSeparator(),messages.stream().map(item->item.getRole()+":"+item.getContent()+System.lineSeparator()).reduce("",String::concat));
         return ChatCompletionRequest.builder()
                 .temperature(chatConfig.getTemperature())
                 .presencePenalty(chatConfig.getPresencePenalty())
