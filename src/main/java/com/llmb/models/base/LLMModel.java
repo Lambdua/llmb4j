@@ -12,7 +12,7 @@ import java.util.List;
  * @author LiangTao
  * @date 2023年05月26 11:30
  **/
-public interface LLMModel<C extends LLmConfig, MI extends LLMMessage<?>, MO extends LLMMessage<?>> {
+public interface LLMModel<C extends LLmConfig, M extends LLMMessage<?>> {
 
     /**
      * 与llm交互的日志记录
@@ -42,14 +42,14 @@ public interface LLMModel<C extends LLmConfig, MI extends LLMMessage<?>, MO exte
      * @param chatMsgs 交互的上下文
      * @return io.reactivex.Flowable<MO>
      **/
-    default Flowable<MO> streamChat(C chatConfig, List<MI> chatMsgs) {
+    default Flowable<M> streamChat(C chatConfig, List<M> chatMsgs) {
         if (chatConfig.isLogLLmMsg()) {
             log(LLmLogStyle.CONFIG,chatConfig.toString());
             chatMsgs.stream()
                     .map(LLMMessage::getMsgStr)
                     .reduce((a,b)-> a+System.lineSeparator()+b).ifPresent(msg->log(LLmLogStyle.INPUT,msg));
         }
-        Flowable<MO> flowable = doStreamChat(chatConfig, chatMsgs);
+        Flowable<M> flowable = doStreamChat(chatConfig, chatMsgs);
         StringBuilder sb = new StringBuilder();
         if (chatConfig.isLogLLmMsg()) {
             return flowable
@@ -67,7 +67,7 @@ public interface LLMModel<C extends LLmConfig, MI extends LLMMessage<?>, MO exte
      * @param chatMsgs 交互的上下文
      * @return io.reactivex.Flowable<MO>
      **/
-     Flowable<MO> doStreamChat(C chatConfig, List<MI> chatMsgs);
+     Flowable<M> doStreamChat(C chatConfig, List<M> chatMsgs);
 
 
      /**
@@ -77,7 +77,7 @@ public interface LLMModel<C extends LLmConfig, MI extends LLMMessage<?>, MO exte
       * @param chatMsgs 交互的上下文
       * @return io.reactivex.Flowable<MO>
       **/
-    default Flowable<MO> streamChat(List<MI> chatMsgs) {
+    default Flowable<M> streamChat(List<M> chatMsgs) {
         return streamChat(getConfig(), chatMsgs);
     }
 
@@ -89,16 +89,16 @@ public interface LLMModel<C extends LLmConfig, MI extends LLMMessage<?>, MO exte
      * @param chatMsgs 交互的上下文
      * @return java.util.List<MO>  结果可能是多个
      **/
-    default List<MO> fullChat(C chatConfig, List<MI> chatMsgs){
+    default List<M> fullChat(C chatConfig, List<M> chatMsgs){
         if (chatConfig.isLogLLmMsg()) {
             log(LLmLogStyle.CONFIG,chatConfig.toString());
             chatMsgs.stream()
                     .map(LLMMessage::getMsgStr)
                     .reduce((a,b)-> a+System.lineSeparator()+b).ifPresent(msg->log(LLmLogStyle.INPUT,msg));
         }
-        List<MO> mos = doFullChat(chatConfig, chatMsgs);
+        List<M> mos = doFullChat(chatConfig, chatMsgs);
         if (chatConfig.isLogLLmMsg()) {
-            for (MO mo : mos) {
+            for (M mo : mos) {
                 log(LLmLogStyle.OUTPUT,mo.getMsgStr());
             }
         }
@@ -113,7 +113,7 @@ public interface LLMModel<C extends LLmConfig, MI extends LLMMessage<?>, MO exte
      * @param chatMsgs 交互的上下文
      * @return java.util.List<MO>
      **/
-    List<MO> doFullChat(C chatConfig, List<MI> chatMsgs);
+    List<M> doFullChat(C chatConfig, List<M> chatMsgs);
 
 
     /**
@@ -123,7 +123,7 @@ public interface LLMModel<C extends LLmConfig, MI extends LLMMessage<?>, MO exte
      * @param chatMsgs 交互的上下文
      * @return java.util.List<MO>
      **/
-    default List<MO> fullChat(List<MI> chatMsgs) {
+    default List<M> fullChat(List<M> chatMsgs) {
         return fullChat(getConfig(), chatMsgs);
     }
 

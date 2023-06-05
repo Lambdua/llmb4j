@@ -1,9 +1,8 @@
 package com.llmb.prompt.base;
 
+import com.llmb.memory.LLMMemory;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Map;
 
 /**
  * @author LiangTao
@@ -21,28 +20,28 @@ public abstract class AbstractStrPromptTemplate<M extends LLMStrMessage> impleme
 
     public abstract  LLMOutputParse<M,?>  createDefaultOutputParse();
 
-    public AbstractStrPromptTemplate() {
+    protected AbstractStrPromptTemplate() {
         this.inputParse=createDefaultInputParse();
         this.outputParse = createDefaultOutputParse();
     }
 
-    public AbstractStrPromptTemplate(LLmStrOutputParse<M>  outputParse) {
+    protected AbstractStrPromptTemplate(LLmStrOutputParse<M>  outputParse) {
         this.outputParse =  outputParse;
         this.inputParse=createDefaultInputParse();
     }
 
-    public AbstractStrPromptTemplate(LLMStrInputParse<M>  inputParse) {
+    protected AbstractStrPromptTemplate(LLMStrInputParse<M>  inputParse) {
         this.inputParse = inputParse;
         this.outputParse = createDefaultOutputParse();
     }
 
-    public AbstractStrPromptTemplate(LLmStrOutputParse<M>  outputParse, LLMStrInputParse<M>  inputParse) {
+    protected AbstractStrPromptTemplate(LLmStrOutputParse<M>  outputParse, LLMStrInputParse<M>  inputParse) {
         this.outputParse = outputParse;
         this.inputParse = inputParse;
     }
 
     @Override
-    public M toMsg(String target, Map<String, Object> argsPayload) {
+    public M toMsg(String target, LLMMemory argsPayload) {
        return inputParse.toMsg(target,argsPayload);
     }
 

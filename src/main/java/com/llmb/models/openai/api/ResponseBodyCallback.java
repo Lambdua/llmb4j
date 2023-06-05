@@ -1,4 +1,4 @@
-package com.llmb.models.impl.openai.api;
+package com.llmb.models.openai.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.theokanning.openai.OpenAiError;

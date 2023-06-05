@@ -1,6 +1,6 @@
 package com.llmb.prompt.base;
 
-import java.util.Map;
+import com.llmb.memory.LLMMemory;
 
 /**
  * llm交互的输入内容基础接口
@@ -12,6 +12,6 @@ public interface LLMInputParse<M extends LLMMessage<?>,T>{
 
     M toMsg(T target,Record argsPayload);
 
-    M toMsg(T target, Map<String,Object> argsPayload);
+    M toMsg(T target, LLMMemory argsPayload);
 
 }

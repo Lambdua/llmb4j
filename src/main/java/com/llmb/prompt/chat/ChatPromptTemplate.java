@@ -1,5 +1,6 @@
 package com.llmb.prompt.chat;
 
+import com.llmb.memory.LLMMemory;
 import com.llmb.prompt.base.AbstractStrPromptTemplate;
 import com.llmb.prompt.base.LLMStrInputParse;
 import com.llmb.prompt.base.LLmStrOutputParse;
@@ -54,7 +55,7 @@ public class ChatPromptTemplate extends AbstractStrPromptTemplate<ChatMessage> {
         }
 
         @Override
-        public ChatMessage toMsg(String target, Map<String, Object> argsPayload) {
+        public ChatMessage toMsg(String target, LLMMemory argsPayload) {
             ChatRole chatRole = ChatRole.SYSTEM;
             for (Map.Entry<String, Object> entry : argsPayload.entrySet()) {
                 String paramName = entry.getKey();

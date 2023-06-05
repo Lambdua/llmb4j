@@ -1,4 +1,4 @@
-package com.llmb.models.impl.openai.api;
+package com.llmb.models.openai.api;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;

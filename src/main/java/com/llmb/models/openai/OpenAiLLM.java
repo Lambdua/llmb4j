@@ -1,9 +1,9 @@
-package com.llmb.models.impl.openai;
+package com.llmb.models.openai;
 
 import cn.hutool.core.text.CharSequenceUtil;
 import com.llmb.models.base.AbstractLLMModel;
 import com.llmb.models.base.PoolProperties;
-import com.llmb.models.impl.openai.api.OpenAiService;
+import com.llmb.models.openai.api.OpenAiService;
 import com.llmb.prompt.chat.ChatMessage;
 import com.llmb.prompt.chat.ChatRole;
 import com.theokanning.openai.completion.chat.ChatCompletionChoice;
@@ -22,7 +22,7 @@ import static com.llmb.util.SettingUtil.PROMPT;
  * @date 2023年05月29 11:16
  **/
 @Slf4j
-public class OpenAiLLM extends AbstractLLMModel<OpenAiLLmConfig, ChatMessage, ChatMessage> {
+public class OpenAiLLM extends AbstractLLMModel<OpenAiLLmConfig, ChatMessage> {
     private final OpenAiService openAiService;
 
     private OpenAiLLmConfig defaultChatConfig;

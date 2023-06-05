@@ -1,6 +1,5 @@
-package com.llmb;
+package com.llmb.log;
 
-import com.llmb.log.LLmLogStyle;
 import com.llmb.util.LLmConstants;
 import org.junit.Test;
 import org.slf4j.Logger;

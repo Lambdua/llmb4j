@@ -1,4 +1,4 @@
-package com.llmb.models.impl.openai.api;
+package com.llmb.models.openai.api;
 
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Interceptor;

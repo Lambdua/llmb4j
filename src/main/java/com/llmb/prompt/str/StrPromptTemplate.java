@@ -1,5 +1,6 @@
 package com.llmb.prompt.str;
 
+import com.llmb.memory.LLMMemory;
 import com.llmb.prompt.base.AbstractStrPromptTemplate;
 import com.llmb.prompt.base.LLMStrInputParse;
 import com.llmb.prompt.base.LLmStrOutputParse;
@@ -48,7 +49,7 @@ public class StrPromptTemplate extends AbstractStrPromptTemplate<StrMessage> {
         }
 
         @Override
-        public StrMessage toMsg(String target, Map<String, Object> argsPayload) {
+        public StrMessage toMsg(String target, LLMMemory argsPayload) {
             for (Map.Entry<String, Object> entry : argsPayload.entrySet()) {
                 String paramName = entry.getKey();
                 Object paramValue = entry.getValue();

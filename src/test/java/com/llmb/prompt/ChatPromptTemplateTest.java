@@ -1,6 +1,7 @@
 package com.llmb.prompt;
 
 import cn.hutool.core.lang.Assert;
+import com.llmb.memory.LLMMemory;
 import com.llmb.prompt.chat.ChatMessage;
 import com.llmb.prompt.chat.ChatPromptTemplate;
 import com.llmb.prompt.chat.ChatRole;
@@ -38,7 +39,7 @@ public class ChatPromptTemplateTest {
 
     @Test
     public void mapTemplateTest() {
-        ChatMessage msg = chatPromptTemplate.toMsg(template, Map.of("param", "map声明方式", "name", "姓名", "age", 18, "测试", true, "chatRole", ChatRole.AI));
+        ChatMessage msg = chatPromptTemplate.toMsg(template, new LLMMemory(Map.of("param", "map声明方式", "name", "姓名", "age", 18, "测试", true, "chatRole", ChatRole.AI)));
         Assert.equals(ChatRole.AI, msg.role());
         Object parse = chatPromptTemplate.parse(msg);
         String result = """
@@ -53,7 +54,7 @@ public class ChatPromptTemplateTest {
     public void custInOutParseTest(){
         ChatPromptTemplate chatPromptTemplate = new ChatPromptTemplate();
         chatPromptTemplate.setOutputParse(msg->msg.getMsg().length());
-        ChatMessage msg = chatPromptTemplate.toMsg(template, Map.of("param", "map声明方式", "name", "姓名", "age", 18, "测试", true, "chatRole", ChatRole.AI));
+        ChatMessage msg = chatPromptTemplate.toMsg(template,new LLMMemory( Map.of("param", "map声明方式", "name", "姓名", "age", 18, "测试", true, "chatRole", ChatRole.AI)));
         Assert.equals(ChatRole.AI, msg.role());
         Integer size=chatPromptTemplate.parse(msg);
         Assert.equals(64,size);

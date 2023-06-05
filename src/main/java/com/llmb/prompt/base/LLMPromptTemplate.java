@@ -1,6 +1,6 @@
 package com.llmb.prompt.base;
 
-import java.util.Map;
+import com.llmb.memory.LLMMemory;
 
 /**
  * prompt生成模板工具
@@ -22,8 +22,6 @@ public interface LLMPromptTemplate<M extends LLMMessage<?>, T> {
      **/
     M toMsg(T target, Record argsPayload);
 
-
-
     /**
      * 根据模板生成消息
      * @author liangtao
@@ -32,7 +30,7 @@ public interface LLMPromptTemplate<M extends LLMMessage<?>, T> {
      * @param argsPayload 模板参数,根据map获取
      * @return M
      **/
-    M toMsg(T target, Map<String, Object> argsPayload);
+    M toMsg(T target, LLMMemory argsPayload);
 
 
     /**

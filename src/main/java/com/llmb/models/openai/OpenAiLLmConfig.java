@@ -1,4 +1,4 @@
-package com.llmb.models.impl.openai;
+package com.llmb.models.openai;
 
 import com.llmb.models.base.LLmConfig;
 import lombok.Data;

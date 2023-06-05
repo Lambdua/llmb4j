@@ -1,7 +1,7 @@
 package com.llmb.models;
 
 import cn.hutool.core.lang.Assert;
-import com.llmb.models.impl.openai.OpenAiLLM;
+import com.llmb.models.openai.OpenAiLLM;
 import com.llmb.prompt.chat.ChatMessage;
 import com.llmb.prompt.chat.ChatPromptTemplate;
 import com.llmb.prompt.chat.ChatRole;

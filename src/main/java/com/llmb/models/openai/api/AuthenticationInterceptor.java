@@ -1,4 +1,4 @@
-package com.llmb.models.impl.openai.api;
+package com.llmb.models.openai.api;
 
 import okhttp3.Interceptor;
 import okhttp3.Request;

@@ -12,4 +12,9 @@ public interface LLmConfig {
     default boolean isLogLLmMsg(){
         return true;
     }
+
+    default boolean isStream(){
+        return true;
+    }
+
 }
