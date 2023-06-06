@@ -8,10 +8,10 @@ import com.llmb.memory.LLMMemory;
  * @author LiangTao
  * @date 2023年05月25 16:04
  **/
-public interface LLMInputParse<M extends LLMMessage<?>,T>{
+public interface LLMInputParse<M extends LLMMessage>{
 
-    M toMsg(T target,Record argsPayload);
+    M toMsg(String template,Record argsPayload);
 
-    M toMsg(T target, LLMMemory argsPayload);
+    M toMsg(String template, LLMMemory argsPayload);
 
 }

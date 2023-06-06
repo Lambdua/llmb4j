@@ -10,27 +10,27 @@ import com.llmb.memory.LLMMemory;
  * @author LiangTao
  * @date 2023年05月25 16:37
  **/
-public interface LLMPromptTemplate<M extends LLMMessage<?>, T> {
+public interface LLMPromptTemplate<M extends LLMMessage> {
 
     /**
      * 根据模板生成消息
      * @author liangtao
      * @date 2023/5/31
-     * @param target 模板
+     * @param template 模板
      * @param argsPayload 模板参数,根据record获取
      * @return M  生成的消息
      **/
-    M toMsg(T target, Record argsPayload);
+    M toMsg(String template, Record argsPayload);
 
     /**
      * 根据模板生成消息
      * @author liangtao
      * @date 2023/5/31
-     * @param target 模板
+     * @param template 模板
      * @param argsPayload 模板参数,根据map获取
      * @return M
      **/
-    M toMsg(T target, LLMMemory argsPayload);
+    M toMsg(String template, LLMMemory argsPayload);
 
 
     /**

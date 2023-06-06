@@ -10,32 +10,32 @@ import lombok.Setter;
  **/
 @Getter
 @Setter
-public abstract class AbstractStrPromptTemplate<M extends LLMStrMessage> implements LLmStrPromptTemplate<M>{
+public abstract class AbstractPromptTemplate<M extends LLMMessage> implements LLMPromptTemplate<M>{
 
     protected LLMOutputParse<M,?> outputParse;
 
-    protected LLMStrInputParse<M> inputParse;
+    protected LLMInputParse<M> inputParse;
 
-    public abstract LLMStrInputParse<M>  createDefaultInputParse();
+    public abstract LLMInputParse<M>  createDefaultInputParse();
 
-    public abstract  LLMOutputParse<M,?>  createDefaultOutputParse();
+    public abstract  LLMOutputParse<M,String>  createDefaultOutputParse();
 
-    protected AbstractStrPromptTemplate() {
+    protected AbstractPromptTemplate() {
         this.inputParse=createDefaultInputParse();
         this.outputParse = createDefaultOutputParse();
     }
 
-    protected AbstractStrPromptTemplate(LLmStrOutputParse<M>  outputParse) {
+    protected AbstractPromptTemplate(LLMOutputParse<M,String>  outputParse) {
         this.outputParse =  outputParse;
         this.inputParse=createDefaultInputParse();
     }
 
-    protected AbstractStrPromptTemplate(LLMStrInputParse<M>  inputParse) {
+    protected AbstractPromptTemplate(LLMInputParse<M>  inputParse) {
         this.inputParse = inputParse;
         this.outputParse = createDefaultOutputParse();
     }
 
-    protected AbstractStrPromptTemplate(LLmStrOutputParse<M>  outputParse, LLMStrInputParse<M>  inputParse) {
+    protected AbstractPromptTemplate(LLMOutputParse<M,String>  outputParse, LLMInputParse<M>  inputParse) {
         this.outputParse = outputParse;
         this.inputParse = inputParse;
     }

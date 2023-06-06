@@ -7,7 +7,7 @@ package com.llmb.chain.base;
  * @author LiangTao
  * @date 2023年06月02 16:34
  **/
-public interface LLMProcessChain<P extends LLMProcessPayload> {
-    void doProcess(P payload);
+public interface LLMProcessChain {
+    void doProcess(LLMProcessPayload payload);
 
 }

@@ -7,7 +7,7 @@ import com.llmb.prompt.base.LLMOutputParse;
  * @author LiangTao
  * @date 2023年05月30 14:46
  **/
-public interface AiParse<I extends LLMMessage<?>, T> extends LLMOutputParse<I,T> {
+public interface AiParse<I extends LLMMessage, T> extends LLMOutputParse<I,T> {
 
     /**
      * 将指定的LLMMessage对象解析为指定的类型

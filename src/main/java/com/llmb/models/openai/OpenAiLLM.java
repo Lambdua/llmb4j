@@ -1,7 +1,7 @@
 package com.llmb.models.openai;
 
 import cn.hutool.core.text.CharSequenceUtil;
-import com.llmb.models.base.AbstractLLMModel;
+import com.llmb.models.base.LLMModel;
 import com.llmb.models.base.PoolProperties;
 import com.llmb.models.openai.api.OpenAiService;
 import com.llmb.prompt.chat.ChatMessage;
@@ -22,7 +22,7 @@ import static com.llmb.util.SettingUtil.PROMPT;
  * @date 2023年05月29 11:16
  **/
 @Slf4j
-public class OpenAiLLM extends AbstractLLMModel<OpenAiLLmConfig, ChatMessage> {
+public class OpenAiLLM implements LLMModel<OpenAiLLmConfig> {
     private final OpenAiService openAiService;
 
     private OpenAiLLmConfig defaultChatConfig;
@@ -65,6 +65,7 @@ public class OpenAiLLM extends AbstractLLMModel<OpenAiLLmConfig, ChatMessage> {
        return this.defaultChatConfig;
     }
 
+
     @Override
     public Flowable<ChatMessage> doStreamChat(OpenAiLLmConfig chatConfig, List<ChatMessage> chatMsgs) {
         return openAiService.streamChatCompletion(createRequest(chatConfig, chatMsgs, true))
@@ -78,11 +79,10 @@ public class OpenAiLLM extends AbstractLLMModel<OpenAiLLmConfig, ChatMessage> {
 
     @Override
     public List<ChatMessage> doFullChat(OpenAiLLmConfig chatConfig, List<ChatMessage> chatMsgs) {
-        List<ChatMessage> chatMessageResults = openAiService.createChatCompletion(createRequest(chatConfig, chatMsgs, false))
+        return openAiService.createChatCompletion(createRequest(chatConfig, chatMsgs, false))
                 .getChoices().stream()
                 .map(response -> new ChatMessage(response.getMessage().getContent(), ChatRole.AI))
                 .toList();
-        return chatMessageResults;
     }
 
 

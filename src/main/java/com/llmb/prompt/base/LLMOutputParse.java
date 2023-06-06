@@ -7,7 +7,7 @@ package com.llmb.prompt.base;
  * @date 2023年05月25 16:06
  **/
 @FunctionalInterface
-public interface LLMOutputParse<M extends LLMMessage<?>,O>{
+public interface LLMOutputParse<M extends LLMMessage,O>{
     O parse(M msg);
 
 }

@@ -1,6 +1,9 @@
 package com.llmb.memory;
 
+import com.llmb.prompt.base.LLMMessage;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -11,6 +14,19 @@ import java.util.Map;
  **/
 public class LLMMemory extends HashMap<String, Object> {
     private final LLMMemoryLoader memoryLoader;
+
+
+     List<LLMMessage> getHistoryMsg(String key){
+        return memoryLoader.getHistoryMsg(key);
+    }
+
+     void  addHistoryMsg(String key,LLMMessage ...msgs){
+        memoryLoader.addHistoryMsg(key,msgs);
+    }
+
+    void removeHistoryMsg(String key,LLMMessage ...msgs){
+        memoryLoader.removeHistoryMsg(key,msgs);
+    }
 
 
 

@@ -1,7 +1,5 @@
 package com.llmb.chain.base;
 
-import com.llmb.chain.chat.StrProcess;
-import com.llmb.prompt.base.LLMStrMessage;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,18 +10,18 @@ import lombok.Setter;
  **/
 @Getter
 @Setter
-public class LLMStrProcessChain<P extends LLMProcessPayload> implements LLMProcessChain<P> {
+public class LLMStrProcessChain implements LLMProcessChain {
 
-    private StrProcess<? extends LLMStrMessage,LLMProcessPayload>[] processes;
+    private LLMProcess[] processes;
 
     private int index = 0;
 
-    public LLMStrProcessChain(StrProcess<? extends LLMStrMessage,LLMProcessPayload>[] processes) {
+    public LLMStrProcessChain(LLMProcess[] processes) {
         this.processes = processes;
     }
 
-    public void addProcess(StrProcess<? extends LLMStrMessage,LLMProcessPayload> process){
-        StrProcess<? extends LLMStrMessage,LLMProcessPayload>[] newProcesses = new StrProcess[processes.length + 1];
+    public void addProcess(LLMProcess process){
+        LLMProcess[] newProcesses = new LLMProcess[processes.length + 1];
         System.arraycopy(processes, 0, newProcesses, 0, processes.length);
         newProcesses[processes.length] = process;
         processes = newProcesses;
@@ -32,10 +30,10 @@ public class LLMStrProcessChain<P extends LLMProcessPayload> implements LLMProce
 
     @Override
     @SuppressWarnings("unchecked")
-    public void doProcess(P payload) {
+    public void doProcess(LLMProcessPayload payload) {
         if (index < processes.length) {
-            StrProcess<? extends LLMStrMessage,LLMProcessPayload> processor = processes[index++];
-            processor.doProcess(payload, (LLMProcessChain<LLMProcessPayload>) this);
+            LLMProcess processor = processes[index++];
+            processor.doProcess(payload, this);
         }
     }
 }

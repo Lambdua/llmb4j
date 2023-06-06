@@ -1,9 +1,9 @@
 package com.llmb.prompt.chat;
 
 import com.llmb.memory.LLMMemory;
-import com.llmb.prompt.base.AbstractStrPromptTemplate;
-import com.llmb.prompt.base.LLMStrInputParse;
-import com.llmb.prompt.base.LLmStrOutputParse;
+import com.llmb.prompt.base.AbstractPromptTemplate;
+import com.llmb.prompt.base.LLMInputParse;
+import com.llmb.prompt.base.LLMOutputParse;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationTargetException;
@@ -16,22 +16,22 @@ import java.util.Map;
  * @date 2023年05月26 10:53
  **/
 @Slf4j
-public class ChatPromptTemplate extends AbstractStrPromptTemplate<ChatMessage> {
+public class ChatPromptTemplate extends AbstractPromptTemplate<ChatMessage> {
 
     @Override
-    public LLMStrInputParse<ChatMessage> createDefaultInputParse() {
+    public LLMInputParse<ChatMessage> createDefaultInputParse() {
         return new LLmChatInputParse();
     }
 
     @Override
-    public LLmStrOutputParse<ChatMessage> createDefaultOutputParse() {
+    public LLMOutputParse<ChatMessage,String> createDefaultOutputParse() {
         return ChatMessage::getMsg;
     }
 
-    public static class LLmChatInputParse implements LLMStrInputParse<ChatMessage> {
+    public static class LLmChatInputParse implements LLMInputParse<ChatMessage> {
 
         @Override
-        public ChatMessage toMsg(String target, Record argsPayload) {
+        public ChatMessage toMsg(String template, Record argsPayload) {
                 Class<? extends Record> aClass = argsPayload.getClass();
                 ChatRole chatRole = ChatRole.SYSTEM;
 
@@ -40,8 +40,8 @@ public class ChatPromptTemplate extends AbstractStrPromptTemplate<ChatMessage> {
                     accessor.setAccessible(true);
                     String paramName = recordComponent.getName();
                     try {
-                        if (target.contains("{$" + paramName + "}")) {
-                            target = target.replace("{$" + paramName + "}", accessor.invoke(argsPayload).toString());
+                        if (template.contains("{$" + paramName + "}")) {
+                            template = template.replace("{$" + paramName + "}", accessor.invoke(argsPayload).toString());
                         }
                         if (recordComponent.getType().equals(ChatRole.class)) {
                             chatRole = (ChatRole) accessor.invoke(argsPayload);
@@ -51,23 +51,23 @@ public class ChatPromptTemplate extends AbstractStrPromptTemplate<ChatMessage> {
                     }
 
                 }
-                return new ChatMessage(target, chatRole);
+                return new ChatMessage(template, chatRole);
         }
 
         @Override
-        public ChatMessage toMsg(String target, LLMMemory argsPayload) {
+        public ChatMessage toMsg(String template, LLMMemory argsPayload) {
             ChatRole chatRole = ChatRole.SYSTEM;
             for (Map.Entry<String, Object> entry : argsPayload.entrySet()) {
                 String paramName = entry.getKey();
                 Object paramValue = entry.getValue();
-                if (target.contains("{$" + paramName + "}")) {
-                    target = target.replace("{$" + paramName + "}", paramValue.toString());
+                if (template.contains("{$" + paramName + "}")) {
+                    template = template.replace("{$" + paramName + "}", paramValue.toString());
                 }
                 if (paramValue instanceof ChatRole role) {
                     chatRole = role;
                 }
             }
-            return new ChatMessage(target, chatRole);
+            return new ChatMessage(template, chatRole);
         }
 
     }
