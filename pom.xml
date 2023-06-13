@@ -64,5 +64,13 @@
             <artifactId>jackson-databind</artifactId>
             <version>2.12.3</version>
         </dependency>
+
+        <!--jep-->
+        <dependency>
+            <groupId>black.ninia</groupId>
+            <artifactId>jep</artifactId>
+            <version>4.1.1</version>
+        </dependency>
+
     </dependencies>
 </project>

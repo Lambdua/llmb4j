@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <conversionRule conversionWord="clr" converterClass="com.llmb.log.ColorConverter"/>
-    <conversionRule conversionWord="dynamic" converterClass="com.llmb.log.DynamicTypeConverter"/>
+    <conversionRule conversionWord="clr" converterClass="com.llmb4j.log.ColorConverter"/>
+    <conversionRule conversionWord="dynamic" converterClass="com.llmb4j.log.DynamicTypeConverter"/>
 
     <!--通用颜色日志输出-->
     <property name="GENERAL_COLOR_PATTERN" value="%clr(%d{yyyy-MM-dd HH:mm:ss}){bold,green} %clr(%-5level) %clr([%thread]){bright-cyan} %clr(%logger) %m%n"/>
