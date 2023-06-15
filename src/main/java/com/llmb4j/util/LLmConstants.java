@@ -2,7 +2,7 @@ package com.llmb4j.util;
 
 import com.llmb4j.models.base.PoolProperties;
 import com.llmb4j.models.openai.OpenAiLLmConfig;
-import com.llmb4j.models.openai.api.OpenAiService;
+import com.llmb4j.models.openai.service.OpenAiService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

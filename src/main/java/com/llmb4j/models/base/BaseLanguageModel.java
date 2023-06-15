@@ -19,13 +19,14 @@
 package com.llmb4j.models.base;
 
 
-import com.llmb4j.callbacks.BaseCallbackHandler;
+import com.llmb4j.common.Generation;
 import com.llmb4j.common.LLMResult;
-import com.llmb4j.prompt.base.ChatRole;
 import com.llmb4j.prompt.base.PromptValue;
 import com.llmb4j.prompt.base.RoleMessage;
+import com.llmb4j.util.ChatMsgUtil;
 import com.llmb4j.util.PyScript;
 
+import java.util.Collections;
 import java.util.List;
 
 
@@ -34,49 +35,67 @@ import java.util.List;
  * @date 2023年06月07 13:33
  **/
 
-public interface BaseLanguageModel {
+public interface BaseLanguageModel<C extends BaseLLMConfig> {
 
-    /**
-     * 是否打印日志。
-     */
-    boolean isVerbose();
+
+    C getConfig();
 
 
     /**
-     * 生成LLMResult。
+     * 使用llm进行文本补全
+     *
+     * @return com.llmb4j.common.LLMResult
+     * @author liangtao
+     * @date 2023/6/15
+     **/
+    default <P extends BaseLLMCompletionPayload> LLMResult generateCompletion(P payload) {
+        throw new UnsupportedOperationException("generateCompletion in " + llmType() + " is not supported");
+    }
+
+
+    /**
+     * 使用llm进行对话文本生成，默认调用generateCompletion来实现。
+     * @param payload 对话荷载
+     * @return com.llmb4j.common.LLMResult
+     * @param <P> 荷载类型
+     * @author liangtao
+     * @date 2023/6/15
      */
-    default LLMResult generate(List<PromptValue> prompts, List<String> stop, BaseCallbackHandler callbackHandler) {
-        return generateCompletion(prompts.stream().map(PromptValue::toString).toList(), stop, callbackHandler);
+    default <P extends BaseLLMChatPayload> List<RoleMessage> generateChat(P payload) {
+        BaseLLMCompletionPayload completionPayload = new BaseLLMCompletionPayload();
+        completionPayload.setModelName(getConfig().getDefaultCompletionModelName());
+        completionPayload.setPrompts(List.of(ChatMsgUtil.getBufferString(payload.chatHistory)));
+        completionPayload.setStop(payload.stop);
+        completionPayload.setCallbackHandler(payload.callbackHandler);
+        return ChatMsgUtil.llmResultToRoleMessage(generateCompletion(completionPayload));
     }
 
 
-    default LLMResult generateCompletion(List<String> prompts, List<String> stop, BaseCallbackHandler callbackHandler){
-        throw new UnsupportedOperationException("generateCompletion in "+llmType()+" is not supported");
-    }
-
-
-    default LLMResult generateChat(List<RoleMessage> prompts, List<String> stop, BaseCallbackHandler callbackHandler) {
-        return generateCompletion(List.of(RoleMessage.getBufferString(prompts)), stop, callbackHandler);
-    }
-
-
+    /**
+     * 通过文本预测文本。默认使用文本补全的方式实现。
+     * @param promptValue promptValue
+     * @param stop stop
+     */
     default String predict(PromptValue promptValue, List<String> stop) {
         return predictCompletion(promptValue.toString(), stop);
     }
 
     /**
-     * 根据文本预测文本。
-     */
-    default String predictCompletion(String text, List<String> stop){
-        throw new UnsupportedOperationException("predictCompletion in "+llmType()+" is not supported");
-    }
-
-    /**
-     * Predict message from messages.
-     */
-    default RoleMessage predictChat(List<RoleMessage> messages, List<String> stop) {
-        String aiMsg = predictCompletion(RoleMessage.getBufferString(messages), stop);
-        return new RoleMessage(aiMsg, ChatRole.AI);
+     * 补全文本。
+     * @author liangtao
+     * @date 2023/6/15
+     * @param text 文本
+     * @param stop stop
+     * @return java.lang.String
+     **/
+    default String predictCompletion(String text, List<String> stop) {
+        BaseLLMCompletionPayload payload = new BaseLLMCompletionPayload();
+        payload.setPrompts(Collections.singletonList(text));
+        payload.setStream(false);
+        payload.setStop(stop);
+        payload.setVerbose(false);
+        payload.setModelName(getConfig().getDefaultCompletionModelName());
+        return generateCompletion(payload).getGenerations().get(0).stream().map(Generation::getText).reduce("",String::concat);
     }
 
     /**
@@ -84,18 +103,23 @@ public interface BaseLanguageModel {
      */
     String llmType();
 
-    /**
-     * 使用的模型名称
-     */
-    String getModelName();
+
+    default Integer getNumTokens(String text){
+        return getNumTokens(text,getConfig().getDefaultCompletionModelName());
+    }
 
     /**
      * 获取模型的token长度
      *
      * @param text token
      */
-    default Integer getNumTokens(String text) {
-        return getTokenIds(text).size();
+    default Integer getNumTokens(String text,String modelName) {
+        return getTokenIds(text,modelName).size();
+    }
+
+
+    default Integer getNumTokensFromMessages(List<RoleMessage> messages){
+        return getNumTokensFromMessages(messages,getConfig().getDefaultChatModelName());
     }
 
     /**
@@ -104,8 +128,8 @@ public interface BaseLanguageModel {
      * @param messages messages
      * @return token长度
      */
-    default Integer getNumTokensFromMessages(List<RoleMessage> messages) {
-        return getNumTokens(RoleMessage.getBufferString(messages));
+    default Integer getNumTokensFromMessages(List<RoleMessage> messages,String modelName) {
+        return getNumTokens(ChatMsgUtil.getBufferString(messages),modelName);
     }
 
     /**
@@ -114,8 +138,8 @@ public interface BaseLanguageModel {
      * @param text token
      * @return token的id
      */
-    default List<Integer> getTokenIds(String text) {
-        return PyScript.tokenIds(text, getModelName());
+    default List<Integer> getTokenIds(String text,String modelName) {
+        return PyScript.tokenIds(text, modelName);
     }
 
 

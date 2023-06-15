@@ -1,8 +1,8 @@
-package com.llmb4j.models.openai.api;
+package com.llmb4j.models.openai.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.theokanning.openai.OpenAiError;
-import com.theokanning.openai.OpenAiHttpException;
+import com.llmb4j.models.openai.base.OpenAiError;
+import com.llmb4j.models.openai.base.OpenAiHttpException;
 import io.reactivex.FlowableEmitter;
 import okhttp3.ResponseBody;
 import retrofit2.Call;

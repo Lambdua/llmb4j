@@ -5,9 +5,7 @@ import com.llmb4j.common.AgentFinish;
 import com.llmb4j.common.LLMResult;
 import com.llmb4j.prompt.base.RoleMessage;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author LiangTao
@@ -17,7 +15,11 @@ public class CallbackWrapper extends BaseCallbackHandler{
     private List<BaseCallbackHandler> callbacks;
 
     public CallbackWrapper(List<BaseCallbackHandler> callbacks) {
-        this.callbacks = callbacks;
+        this.callbacks = Optional.ofNullable(callbacks).orElse(new ArrayList<>());
+    }
+
+    public void addCallback(BaseCallbackHandler callback){
+        callbacks.add(callback);
     }
 
     @Override

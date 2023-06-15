@@ -1,4 +1,4 @@
-package com.llmb4j.models.openai.api;
+package com.llmb4j.models.openai.service;
 
 /**
  * Simple Server Sent Event representation

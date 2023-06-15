@@ -9,7 +9,8 @@ public enum ChatRole{
     SYSTEM("System") ,
     HUMAN("Human") ,
     AI("Ai"),
-    CHAT("Chat")
+    CHAT("Chat"),
+    FUNCTION("Function")
     ;
 
 

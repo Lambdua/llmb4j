@@ -1,19 +1,21 @@
-package com.llmb4j.models.openai.api;
+package com.llmb4j.models.openai.service;
 
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
- * OkHttp Interceptor that adds an authorization token header
+ * 添加授权令牌标头的OkHttp拦截器
  */
 public class AuthenticationInterceptor implements Interceptor {
 
     private final String token;
 
     AuthenticationInterceptor(String token) {
+        Objects.requireNonNull(token, "OpenAI token required");
         this.token = token;
     }
 
