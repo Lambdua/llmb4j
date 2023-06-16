@@ -1,7 +1,5 @@
 package com.llmb4j.output.base;
 
-import com.llmb4j.prompt.base.PromptValue;
-
 /**
  * @author LiangTao
  * @date 2023年06月06 14:59
@@ -25,7 +23,7 @@ public interface BaseOutputParser<T> {
      * @param prompt 提示
      * @return O
      **/
-    <O> O parseWithPrompt(String completion, PromptValue prompt);
+    <O> O parseWithPrompt(String completion, String prompt);
 
 
     /**

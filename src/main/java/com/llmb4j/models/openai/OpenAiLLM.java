@@ -20,7 +20,6 @@ import com.llmb4j.models.openai.completion.CompletionResult;
 import com.llmb4j.models.openai.completion.chat.*;
 import com.llmb4j.models.openai.service.OpenAiService;
 import com.llmb4j.prompt.base.ChatRole;
-import com.llmb4j.prompt.base.PromptValue;
 import com.llmb4j.prompt.base.RoleMessage;
 import com.llmb4j.util.LLmConstants;
 import lombok.extern.slf4j.Slf4j;
@@ -255,25 +254,6 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
         return BaseLanguageModel.super.generateCompletion(payload);
     }
 
-    @Override
-    public String predict(PromptValue promptValue, List<String> stop) {
-        String prompt = promptValue.toString();
-        if (CharSequenceUtil.isEmpty(prompt)) {
-            List<? extends RoleMessage> messages = promptValue.toMessages();
-            Assert.notEmpty(messages, "promptValue must not be empty");
-            List<OpenAiRoleMessage> openAiRoleMsgList = messages.stream().map(item -> {
-                if (item instanceof OpenAiRoleMessage openAiRoleMessage) {
-                    return openAiRoleMessage;
-                }
-                return new OpenAiRoleMessage(item.getContent(), item.getRole(), null, null);
-            }).toList();
-            OpenAiLLmChatPayload openAiLLmChatPayload = withDefaultChatModel();
-            openAiLLmChatPayload.setChatHistory(openAiRoleMsgList);
-            openAiLLmChatPayload.setStop(stop);
-            return generateChat(openAiLLmChatPayload).get(0).getContent();
-        }
-        return predictCompletion(prompt, stop);
-    }
 
     @Override
     public String predictCompletion(String text, List<String> stop) {

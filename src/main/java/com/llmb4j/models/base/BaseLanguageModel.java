@@ -21,7 +21,6 @@ package com.llmb4j.models.base;
 
 import com.llmb4j.common.Generation;
 import com.llmb4j.common.LLMResult;
-import com.llmb4j.prompt.base.PromptValue;
 import com.llmb4j.prompt.base.RoleMessage;
 import com.llmb4j.util.ChatMsgUtil;
 import com.llmb4j.util.PyScript;
@@ -55,9 +54,10 @@ public interface BaseLanguageModel<C extends BaseLLMConfig> {
 
     /**
      * 使用llm进行对话文本生成，默认调用generateCompletion来实现。
+     *
      * @param payload 对话荷载
+     * @param <P>     荷载类型
      * @return com.llmb4j.common.LLMResult
-     * @param <P> 荷载类型
      * @author liangtao
      * @date 2023/6/15
      */
@@ -72,21 +72,13 @@ public interface BaseLanguageModel<C extends BaseLLMConfig> {
 
 
     /**
-     * 通过文本预测文本。默认使用文本补全的方式实现。
-     * @param promptValue promptValue
-     * @param stop stop
-     */
-    default String predict(PromptValue promptValue, List<String> stop) {
-        return predictCompletion(promptValue.toString(), stop);
-    }
-
-    /**
      * 补全文本。
-     * @author liangtao
-     * @date 2023/6/15
+     *
      * @param text 文本
      * @param stop stop
      * @return java.lang.String
+     * @author liangtao
+     * @date 2023/6/15
      **/
     default String predictCompletion(String text, List<String> stop) {
         BaseLLMCompletionPayload payload = new BaseLLMCompletionPayload();
@@ -95,7 +87,7 @@ public interface BaseLanguageModel<C extends BaseLLMConfig> {
         payload.setStop(stop);
         payload.setVerbose(false);
         payload.setModelName(getConfig().getDefaultCompletionModelName());
-        return generateCompletion(payload).getGenerations().get(0).stream().map(Generation::getText).reduce("",String::concat);
+        return generateCompletion(payload).getGenerations().get(0).stream().map(Generation::getText).reduce("", String::concat);
     }
 
     /**
@@ -104,8 +96,8 @@ public interface BaseLanguageModel<C extends BaseLLMConfig> {
     String llmType();
 
 
-    default Integer getNumTokens(String text){
-        return getNumTokens(text,getConfig().getDefaultCompletionModelName());
+    default Integer getNumTokens(String text) {
+        return getNumTokens(text, getConfig().getDefaultCompletionModelName());
     }
 
     /**
@@ -113,13 +105,13 @@ public interface BaseLanguageModel<C extends BaseLLMConfig> {
      *
      * @param text token
      */
-    default Integer getNumTokens(String text,String modelName) {
-        return getTokenIds(text,modelName).size();
+    default Integer getNumTokens(String text, String modelName) {
+        return getTokenIds(text, modelName).size();
     }
 
 
-    default Integer getNumTokensFromMessages(List<RoleMessage> messages){
-        return getNumTokensFromMessages(messages,getConfig().getDefaultChatModelName());
+    default Integer getNumTokensFromMessages(List<RoleMessage> messages) {
+        return getNumTokensFromMessages(messages, getConfig().getDefaultChatModelName());
     }
 
     /**
@@ -128,8 +120,8 @@ public interface BaseLanguageModel<C extends BaseLLMConfig> {
      * @param messages messages
      * @return token长度
      */
-    default Integer getNumTokensFromMessages(List<? extends RoleMessage> messages,String modelName) {
-        return getNumTokens(ChatMsgUtil.getBufferString(messages),modelName);
+    default Integer getNumTokensFromMessages(List<? extends RoleMessage> messages, String modelName) {
+        return getNumTokens(ChatMsgUtil.getBufferString(messages), modelName);
     }
 
     /**
@@ -138,7 +130,7 @@ public interface BaseLanguageModel<C extends BaseLLMConfig> {
      * @param text token
      * @return token的id
      */
-    default List<Integer> getTokenIds(String text,String modelName) {
+    default List<Integer> getTokenIds(String text, String modelName) {
         return PyScript.tokenIds(text, modelName);
     }
 
