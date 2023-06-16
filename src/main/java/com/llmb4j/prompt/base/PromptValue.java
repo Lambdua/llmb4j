@@ -30,7 +30,7 @@ public interface PromptValue {
     /**
      * 以消息形式返回提示。
      */
-    List<RoleMessage> toMessages();
+    List<? extends RoleMessage> toMessages();
 
     @Override
     String toString();

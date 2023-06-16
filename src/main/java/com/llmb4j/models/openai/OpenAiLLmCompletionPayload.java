@@ -2,6 +2,7 @@ package com.llmb4j.models.openai;
 
 import com.llmb4j.models.base.BaseLLMCompletionPayload;
 import com.llmb4j.models.openai.completion.CompletionRequest;
+import lombok.Setter;
 
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import java.util.Map;
  * @author LiangTao
  * @date 2023年06月15 15:27
  **/
+@Setter
 public class OpenAiLLmCompletionPayload extends BaseLLMCompletionPayload {
 
     /**

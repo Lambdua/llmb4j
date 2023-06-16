@@ -61,7 +61,7 @@ public interface BaseLanguageModel<C extends BaseLLMConfig> {
      * @author liangtao
      * @date 2023/6/15
      */
-    default <P extends BaseLLMChatPayload> List<RoleMessage> generateChat(P payload) {
+    default <P extends BaseLLMChatPayload> List<? extends RoleMessage> generateChat(P payload) {
         BaseLLMCompletionPayload completionPayload = new BaseLLMCompletionPayload();
         completionPayload.setModelName(getConfig().getDefaultCompletionModelName());
         completionPayload.setPrompts(List.of(ChatMsgUtil.getBufferString(payload.chatHistory)));
@@ -128,7 +128,7 @@ public interface BaseLanguageModel<C extends BaseLLMConfig> {
      * @param messages messages
      * @return token长度
      */
-    default Integer getNumTokensFromMessages(List<RoleMessage> messages,String modelName) {
+    default Integer getNumTokensFromMessages(List<? extends RoleMessage> messages,String modelName) {
         return getNumTokens(ChatMsgUtil.getBufferString(messages),modelName);
     }
 

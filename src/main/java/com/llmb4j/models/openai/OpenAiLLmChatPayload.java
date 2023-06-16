@@ -2,6 +2,9 @@ package com.llmb4j.models.openai;
 
 import com.llmb4j.models.base.BaseLLMChatPayload;
 import com.llmb4j.models.openai.completion.chat.ChatFunction;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.Map;
@@ -10,6 +13,9 @@ import java.util.Map;
  * @author LiangTao
  * @date 2023年06月15 10:36
  **/
+@NoArgsConstructor
+@AllArgsConstructor
+@Setter
 public class OpenAiLLmChatPayload extends BaseLLMChatPayload {
 
 

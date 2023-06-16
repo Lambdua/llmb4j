@@ -1,6 +1,9 @@
 package com.llmb4j.models.base;
 
 import com.llmb4j.prompt.base.RoleMessage;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -9,9 +12,12 @@ import java.util.List;
  * @author LiangTao
  * @date 2023年06月15 09:58
  **/
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class BaseLLMChatPayload extends BaseLLMPayload{
     /**
      * 对话历史
      */
-    public List<RoleMessage> chatHistory;
+    public List<? extends RoleMessage> chatHistory;
 }

@@ -39,11 +39,11 @@ public class ChatMsgUtil {
         return maps.stream().map(ChatMsgUtil::mapToMsg).toList();
     }
 
-    public static String getBufferString(List<RoleMessage> messages) {
+    public static String getBufferString(List<? extends RoleMessage> messages) {
         return getBufferString(messages, "Human", "AI");
     }
 
-    public static String getBufferString(List<RoleMessage> messages, String humanPrefix, String aiPrefix) {
+    public static String getBufferString(List<? extends RoleMessage> messages, String humanPrefix, String aiPrefix) {
         StringBuilder sb = new StringBuilder();
         for (RoleMessage m : messages) {
             switch (m.getRole()) {
