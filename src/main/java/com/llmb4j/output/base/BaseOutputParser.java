@@ -15,15 +15,19 @@ public interface BaseOutputParser<T> {
      **/
     T parse(String str);
 
-    /**
+/*
+    */
+/**
      * 根据指定的prompt提示，解析LLM调用的输出。
      * @author liangtao
      * @date 2023/6/6
      * @param completion 文本
      * @param prompt 提示
      * @return O
-     **/
+     **//*
+
     <O> O parseWithPrompt(String completion, String prompt);
+*/
 
 
     /**
