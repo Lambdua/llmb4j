@@ -29,15 +29,26 @@ public class OpenAiTest {
     @Test
     public void streamChatTest() {
         OpenAiPromptTemplate chatPromptTemplate = new OpenAiPromptTemplate();
+        //配置模板
         String template = "你好，我的名字叫：{$name},我应该叫你什么？";
+        //使用record来进行模板参数注入，也可以通过map来进行参数注入
         record payload(String name, ChatRole role) {
         }
+        //生成请求
         OpenAiRoleMessage request = chatPromptTemplate.format(template, new payload("小明", ChatRole.HUMAN));
+
+        //创建一个默认聊天配置
         OpenAiLLmChatPayload chatPayload = OpenAiLLM.withDefaultChatModel();
+        //添加聊天历史
         chatPayload.setChatHistory(Collections.singletonList(request));
+
+        //设置stream为true，表示流式聊天。 流式聊天会在callback#onLlmNewToken中返回流响应
         chatPayload.setStream(true);
+        //打印详细的聊天配置和请求、响应
         chatPayload.setVerbose(true);
         StringBuilder sb = new StringBuilder();
+
+        //设置回调处理
         chatPayload.setCallbackHandler(new BaseCallbackHandler() {
             @Override
             public void onLlmStart(Map<String, Object> serialized, List<String> prompts, UUID runId, UUID parentRunId, Map<String, Object> kwargs) {
@@ -59,7 +70,7 @@ public class OpenAiTest {
                 log.info("onLlmEnd:{}", response.toString());
             }
         });
-
+        //开始聊天
         List<? extends RoleMessage> roleMessages = openAiLLM.generateChat(chatPayload);
         Assert.notEmpty(roleMessages);
         Assert.equals(sb.toString(), roleMessages.get(0).getContent());
