@@ -5,6 +5,7 @@ import com.llmb4j.models.openai.completion.chat.ChatFunction;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
+@ToString(callSuper = true)
 public class OpenAiLLmChatPayload extends BaseLLMChatPayload {
 
 
@@ -71,6 +73,9 @@ public class OpenAiLLmChatPayload extends BaseLLMChatPayload {
 
     /**
      * Controls how the model responds to function calls, as specified in the <a href="https://platform.openai.com/docs/api-reference/chat/create#chat/create-function_call">OpenAI documentation</a>.
+     *
+     * use 'none' to disable function call
+     * use specific function name to enable force function call e.g {"name": "get_n_day_weather_forecast"}
      */
     public  String functionCall;
 

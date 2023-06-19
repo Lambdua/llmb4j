@@ -4,6 +4,7 @@ import com.llmb4j.prompt.base.RoleMessage;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(callSuper = true)
 public class BaseLLMChatPayload extends BaseLLMPayload{
     /**
      * 对话历史

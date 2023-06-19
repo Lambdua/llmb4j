@@ -20,7 +20,7 @@ public class OpenAiPromptTemplate implements LLMInputParse<OpenAiRoleMessage> {
         Class<? extends Record> aClass = argsPayload.getClass();
         ChatRole chatRole = ChatRole.SYSTEM;
 
-        String functionName="";
+        String functionName=null;
         for (RecordComponent recordComponent : aClass.getRecordComponents()) {
             Method accessor = recordComponent.getAccessor();
             accessor.setAccessible(true);

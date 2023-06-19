@@ -21,6 +21,7 @@ import com.llmb4j.models.openai.completion.chat.*;
 import com.llmb4j.models.openai.service.OpenAiService;
 import com.llmb4j.prompt.base.ChatRole;
 import com.llmb4j.prompt.base.RoleMessage;
+import com.llmb4j.util.ChatMsgUtil;
 import com.llmb4j.util.LLmConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -32,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 /**
  * @author LiangTao
@@ -66,7 +66,7 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
         this.openAiService = openAiService;
     }
 
-    public OpenAiLLmConfig withDefaultConfig() {
+    public static OpenAiLLmConfig withDefaultConfig() {
         OpenAiLLmConfig openAiChatConfig = new OpenAiLLmConfig();
         openAiChatConfig.setDefaultChatModelName(OpenAiModels.gpt35turbo);
         openAiChatConfig.setDefaultCompletionModelName(OpenAiModels.textdavinci003);
@@ -74,6 +74,27 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
         openAiChatConfig.setCallbackHandlers(new ArrayList<>());
         return openAiChatConfig;
     }
+
+    public static OpenAiLLmChatPayload withDefaultChatModel() {
+        OpenAiLLmChatPayload openAiLLmChatPayload = new OpenAiLLmChatPayload();
+        openAiLLmChatPayload.setStream(false);
+        openAiLLmChatPayload.setVerbose(false);
+        openAiLLmChatPayload.setModelName(OpenAiModels.gpt35turbo);
+        openAiLLmChatPayload.setN(1);
+        openAiLLmChatPayload.setTemperature(0.5D);
+        return openAiLLmChatPayload;
+    }
+
+    public static OpenAiLLmCompletionPayload withDefaultCompletionModel() {
+        OpenAiLLmCompletionPayload openAiLLmCompletionPayload = new OpenAiLLmCompletionPayload();
+        openAiLLmCompletionPayload.setStream(false);
+        openAiLLmCompletionPayload.setVerbose(false);
+        openAiLLmCompletionPayload.setModelName(OpenAiModels.textdavinci003);
+        openAiLLmCompletionPayload.setN(1);
+        openAiLLmCompletionPayload.setTemperature(0.5D);
+        return openAiLLmCompletionPayload;
+    }
+
 
     @Override
     public OpenAiLLmConfig getConfig() {
@@ -96,6 +117,11 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
                 callBack.addCallback(openAiChatPayload.callbackHandler);
             }
             try {
+                if (payload.verbose){
+                    MDC.put(LLmConstants.llmLogTypeKey, LLmLogStyle.CONFIG.type);
+                    llmLogger.info("generateChat configPayload: {}",payload);
+                }
+
                 callBack.onLlmStart(Map.of("name", llmType()), payload.chatHistory.stream().map(RoleMessage::toString).toList(), null, null, null);
                 ChatCompletionRequest request = createRequest(openAiChatPayload);
 
@@ -109,17 +135,19 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
                     List<Generation> streamGenerations = new ArrayList<>();
                     openAiService.streamChatCompletion(request)
                             .filter(item -> CharSequenceUtil.isNotEmpty(item.getChoices().get(0).getMessage().getContent()))
-                            .map(response -> Generation.builder()
-                                    .text(response.getChoices().get(0).getMessage().getContent())
-                                    .generationInfo(BeanUtil.beanToMap(response.getChoices().get(0).getMessage()))
-                                    .build()).doOnNext(g -> {
+                            .doOnNext(response -> {
+                                Generation g = Generation.builder()
+                                        .text(response.getChoices().get(0).getMessage().getContent())
+                                        .generationInfo(BeanUtil.beanToMap(response.getChoices().get(0).getMessage()))
+                                        .build();
+                                g.getGenerationInfo().put("finishReason", response.getChoices().get(0).getFinishReason());
                                 callBack.onLlmNewToken(g.getText(), null, null, null);
                                 streamGenerations.add(g);
-                            }).subscribe();
+                            }).blockingSubscribe();
                     completionTokens = getNumTokens(streamGenerations.stream().map(Generation::getText).reduce("", (a, b) -> a + b), payload.modelName);
                     promptTokens = getNumTokensFromMessages(payload.chatHistory, payload.modelName);
                     totalTokens = promptTokens + completionTokens;
-                    finishReason = streamGenerations.get(streamGenerations.size() - 1).getGenerationInfo().get("finishReason").toString();
+                    finishReason = MapUtil.getStr(streamGenerations.get(streamGenerations.size() - 1).getGenerationInfo(), "finishReason", "");
                     generations.add(streamGenerations);
                 } else {
                     ChatCompletionResult result = openAiService.createChatCompletion(request);
@@ -149,22 +177,27 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
                 ));
                 if (payload.verbose) {
                     MDC.put(LLmConstants.llmLogTypeKey, LLmLogStyle.INPUT.type);
-                    String input = OpenAiRoleMessage.getBufferString((List<OpenAiRoleMessage>) payload.chatHistory);
+                    String input = ChatMsgUtil.getBufferString( payload.chatHistory);
                     llmLogger.info(input);
-                    MDC.put(LLmConstants.llmLogTypeKey, LLmLogStyle.OUTPUT.type);
-                    generations.forEach(itemGenerations -> {
-                        String itemResponse = itemGenerations.stream().map(Generation::getText).reduce("", (a, b) -> a + b);
-                        llmLogger.info(itemResponse);
-                    });
-                    MDC.remove(LLmConstants.llmLogTypeKey);
                 }
                 callBack.onLlmEnd(llmResult, null, null, null);
                 return llmResult.getGenerations().stream().map(itemGenerations -> {
-                    String content = itemGenerations.stream().map(Generation::getText).reduce("", String::concat);
                     Map<String, Object> itemInfo = itemGenerations.get(0).getGenerationInfo();
+                    ChatFunctionCall functionCall = MapUtil.get(itemInfo, "functionCall", ChatFunctionCall.class);
+                    String content;
+                    if (functionCall != null) {
+                        content = "use funcation call;funcation name:" + functionCall.getName() + ",args:" + functionCall.getArguments().toString();
+                    } else {
+                        content = itemGenerations.stream().map(Generation::getText).reduce("", String::concat);
+                    }
+
+                    if (payload.verbose) {
+                        MDC.put(LLmConstants.llmLogTypeKey, LLmLogStyle.OUTPUT.type);
+                        llmLogger.info(content);
+                    }
                     return new OpenAiRoleMessage(content, ChatRole.AI,
                             MapUtil.getStr(itemInfo, "name"),
-                            MapUtil.get(itemInfo, "functionCall", ChatFunctionCall.class)
+                            functionCall
                     );
                 }).toList();
             } catch (Exception e) {
@@ -172,6 +205,8 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
                 if (callBack.throwError) {
                     throw new ChatLLMException(e);
                 }
+            }finally {
+                MDC.remove(LLmConstants.llmLogTypeKey);
             }
             return Collections.emptyList();
         }
@@ -186,6 +221,10 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
                 callBack.addCallback(openAiPayload.callbackHandler);
             }
             try {
+                if (openAiPayload.verbose){
+                    MDC.put(LLmConstants.llmLogTypeKey, LLmLogStyle.CONFIG.type);
+                    llmLogger.info("generateCompletion configPayload: {}",openAiPayload);
+                }
                 List<String> allPrompts = payload.getPrompts();
                 callBack.onLlmStart(Map.of("name", llmType()), allPrompts, null, null, null);
                 List<List<Generation>> allGenerations = new ArrayList<>();
@@ -202,11 +241,11 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
                             Generation generation = new Generation(completionChoice.getText(), BeanUtil.beanToMap(completionChoice));
                             streamItemGeneration.add(generation);
                             callBack.onLlmNewToken(generation.getText(), null, null, null);
-                        }).subscribe();
+                        }).blockingSubscribe();
                         promptTokens.addAndGet(getNumTokens(prompt, payload.modelName));
                         completionTokens.addAndGet(getNumTokens(streamItemGeneration.stream().map(Generation::getText).reduce("", String::concat), payload.modelName));
                         totalTokens.addAndGet(promptTokens.get() + completionTokens.get());
-                        finishReason.set(streamItemGeneration.get(streamItemGeneration.size() - 1).getGenerationInfo().get("finish_reason").toString());
+                        finishReason.set(MapUtil.getStr(streamItemGeneration.get(streamItemGeneration.size() - 1).getGenerationInfo(), "finish_reason", ""));
                         return streamItemGeneration;
                     }).forEach(allGenerations::add);
                 } else {
@@ -220,7 +259,7 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
                         promptTokens.addAndGet((int) usage.getPromptTokens());
                         completionTokens.addAndGet((int) usage.getCompletionTokens());
                         finishReason.set(choices.get(choices.size() - 1).getFinish_reason());
-                        return choices.stream().map(choice -> new Generation(choice.getText(), BeanUtil.beanToMap(choice))).collect(Collectors.toList());
+                        return choices.stream().map(choice -> new Generation(choice.getText(), BeanUtil.beanToMap(choice))).toList();
                     }).flatMap(List::stream).forEach(gen -> allGenerations.add(Collections.singletonList(gen)));
                 }
                 LLMResult result = new LLMResult(allGenerations, Map.of(
@@ -230,10 +269,9 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
                         "finishReason", finishReason
                 ));
                 if (payload.verbose) {
+                    MDC.put(LLmConstants.llmLogTypeKey, LLmLogStyle.INPUT.type);
+                    allPrompts.forEach(input -> llmLogger.info(input));
                     for (int i = 0; i < allGenerations.size(); i++) {
-                        MDC.put(LLmConstants.llmLogTypeKey, LLmLogStyle.INPUT.type);
-                        String input = allPrompts.get(i);
-                        llmLogger.info(input);
                         MDC.put(LLmConstants.llmLogTypeKey, LLmLogStyle.OUTPUT.type);
                         List<Generation> itemGenerations = allGenerations.get(i);
                         String itemResponse = itemGenerations.stream().map(Generation::getText).reduce("", (a, b) -> a + b);
@@ -249,6 +287,8 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
                     throw new ChatLLMException(e);
                 }
                 return null;
+            }finally {
+                MDC.remove(LLmConstants.llmLogTypeKey);
             }
         }
         return BaseLanguageModel.super.generateCompletion(payload);
@@ -263,25 +303,6 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
         return generateCompletion(completionPayload).getGenerations().get(0).get(0).getText();
     }
 
-    public OpenAiLLmChatPayload withDefaultChatModel() {
-        OpenAiLLmChatPayload openAiLLmChatPayload = new OpenAiLLmChatPayload();
-        openAiLLmChatPayload.setStream(false);
-        openAiLLmChatPayload.setVerbose(false);
-        openAiLLmChatPayload.setModelName(getConfig().getDefaultChatModelName());
-        openAiLLmChatPayload.setN(1);
-        openAiLLmChatPayload.setTemperature(0.5D);
-        return openAiLLmChatPayload;
-    }
-
-    public OpenAiLLmCompletionPayload withDefaultCompletionModel() {
-        OpenAiLLmCompletionPayload openAiLLmCompletionPayload = new OpenAiLLmCompletionPayload();
-        openAiLLmCompletionPayload.setStream(false);
-        openAiLLmCompletionPayload.setVerbose(false);
-        openAiLLmCompletionPayload.setModelName(getConfig().getDefaultCompletionModelName());
-        openAiLLmCompletionPayload.setN(1);
-        openAiLLmCompletionPayload.setTemperature(0.5D);
-        return openAiLLmCompletionPayload;
-    }
 
     private CompletionRequest createRequest(OpenAiLLmCompletionPayload openAiPayload, String prompt) {
         return CompletionRequest.builder()
@@ -315,6 +336,7 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
                                     case SYSTEM -> "system";
                                     case HUMAN -> "user";
                                     case AI -> "assistant";
+                                    case FUNCTION -> "function";
                                     default ->
                                             throw new IllegalStateException("Unexpected value: " + chatRecord.getRole());
                                 }, chatRecord.getContent(), chatRecord.getName(), chatRecord.getFunctionCall())
@@ -332,6 +354,7 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
                 .model(payload.modelName)
                 .stop(payload.stop)
                 .functions(payload.functions)
+                .functionCall(payload.functionCall)
                 .messages(messages).build();
     }
 

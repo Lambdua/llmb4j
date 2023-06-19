@@ -2,6 +2,7 @@ package com.llmb4j.models.base;
 
 import com.llmb4j.callbacks.BaseCallbackHandler;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -11,6 +12,7 @@ import java.util.List;
  * @date 2023年06月15 09:48
  **/
 @Setter
+@ToString
 public class BaseLLMPayload {
 
     /**

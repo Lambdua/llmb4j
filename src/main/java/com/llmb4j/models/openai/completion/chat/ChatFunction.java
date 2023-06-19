@@ -1,11 +1,13 @@
 package com.llmb4j.models.openai.completion.chat;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NonNull;
 
 @Data
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class ChatFunction {
 
     @NonNull

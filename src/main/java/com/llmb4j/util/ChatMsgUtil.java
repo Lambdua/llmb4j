@@ -40,17 +40,12 @@ public class ChatMsgUtil {
     }
 
     public static String getBufferString(List<? extends RoleMessage> messages) {
-        return getBufferString(messages, "Human", "AI");
-    }
-
-    public static String getBufferString(List<? extends RoleMessage> messages, String humanPrefix, String aiPrefix) {
         StringBuilder sb = new StringBuilder();
-        for (RoleMessage m : messages) {
-            switch (m.getRole()) {
-                case HUMAN -> sb.append(humanPrefix).append(": ").append(m.getContent()).append(System.lineSeparator());
-                case AI -> sb.append(aiPrefix).append(": ").append(m.getContent()).append(System.lineSeparator());
-                case SYSTEM,CHAT,FUNCTION -> sb.append(m.getRole().getValue()).append(": ").append(m.getContent()).append(System.lineSeparator());
-                default -> throw new IllegalArgumentException("Got unsupported message type: " + m);
+        for (int i = 0; i < messages.size(); i++) {
+            RoleMessage m = messages.get(i);
+            sb.append(m.getRole().getValue()).append(": ").append(m.getContent());
+            if (i != messages.size() - 1) {
+                sb.append(System.lineSeparator()).append("  ");
             }
         }
         return sb.toString();

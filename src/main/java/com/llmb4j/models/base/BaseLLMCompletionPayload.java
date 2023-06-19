@@ -1,6 +1,7 @@
 package com.llmb4j.models.base;
 
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ import java.util.List;
  * @date 2023年06月15 09:58
  **/
 @Data
+@ToString(callSuper = true)
 public class BaseLLMCompletionPayload extends BaseLLMPayload{
 
     /**
