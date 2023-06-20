@@ -122,7 +122,8 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
                     llmLogger.info("generateChat configPayload: {}",payload);
                 }
 
-                callBack.onLlmStart(Map.of("name", llmType()), payload.chatHistory.stream().map(RoleMessage::toString).toList(), null, null, null);
+                List<? extends RoleMessage> chatHistory = payload.chatHistory;
+                callBack.onChatModelStart(Map.of("name", llmType()), chatHistory, null, null, null);
                 ChatCompletionRequest request = createRequest(openAiChatPayload);
 
                 int totalTokens;
@@ -145,7 +146,7 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
                                 streamGenerations.add(g);
                             }).blockingSubscribe();
                     completionTokens = getNumTokens(streamGenerations.stream().map(Generation::getText).reduce("", (a, b) -> a + b), payload.modelName);
-                    promptTokens = getNumTokensFromMessages(payload.chatHistory, payload.modelName);
+                    promptTokens = getNumTokensFromMessages(chatHistory, payload.modelName);
                     totalTokens = promptTokens + completionTokens;
                     finishReason = MapUtil.getStr(streamGenerations.get(streamGenerations.size() - 1).getGenerationInfo(), "finishReason", "");
                     generations.add(streamGenerations);
@@ -177,7 +178,7 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
                 ));
                 if (payload.verbose) {
                     MDC.put(LLmConstants.llmLogTypeKey, LLmLogStyle.INPUT.type);
-                    String input = ChatMsgUtil.getBufferString( payload.chatHistory);
+                    String input = ChatMsgUtil.getBufferString(chatHistory);
                     llmLogger.info(input);
                 }
                 callBack.onLlmEnd(llmResult, null, null, null);
@@ -239,8 +240,8 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
                         openAiService.streamCompletion(request).doOnNext(response -> {
                             CompletionChoice completionChoice = response.getChoices().get(0);
                             Generation generation = new Generation(completionChoice.getText(), BeanUtil.beanToMap(completionChoice));
-                            streamItemGeneration.add(generation);
                             callBack.onLlmNewToken(generation.getText(), null, null, null);
+                            streamItemGeneration.add(generation);
                         }).blockingSubscribe();
                         promptTokens.addAndGet(getNumTokens(prompt, payload.modelName));
                         completionTokens.addAndGet(getNumTokens(streamItemGeneration.stream().map(Generation::getText).reduce("", String::concat), payload.modelName));
@@ -268,18 +269,20 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
                         "completionTokens", completionTokens,
                         "finishReason", finishReason
                 ));
+                callBack.onLlmEnd(result, null, null, null);
                 if (payload.verbose) {
                     MDC.put(LLmConstants.llmLogTypeKey, LLmLogStyle.INPUT.type);
                     allPrompts.forEach(input -> llmLogger.info(input));
-                    for (int i = 0; i < allGenerations.size(); i++) {
+                    //callback中可能修改了result
+                    List<List<Generation>> finalGenerations = result.getGenerations();
+                    for (int i = 0; i < finalGenerations.size(); i++) {
                         MDC.put(LLmConstants.llmLogTypeKey, LLmLogStyle.OUTPUT.type);
-                        List<Generation> itemGenerations = allGenerations.get(i);
+                        List<Generation> itemGenerations = finalGenerations.get(i);
                         String itemResponse = itemGenerations.stream().map(Generation::getText).reduce("", (a, b) -> a + b);
                         llmLogger.info(itemResponse);
                     }
                     MDC.remove(LLmConstants.llmLogTypeKey);
                 }
-                callBack.onLlmEnd(result, null, null, null);
                 return result;
             } catch (Exception e) {
                 callBack.onLlmError(e, null, null, null);

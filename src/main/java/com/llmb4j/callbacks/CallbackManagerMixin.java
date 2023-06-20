@@ -15,9 +15,10 @@ public interface CallbackManagerMixin {
 
     }
 
-    default void onChatModelStart(Map<String, Object> serialized, List<List<RoleMessage>> messages, UUID runId, UUID parentRunId, Map<String, Object> kwargs){
+    default void onChatModelStart(Map<String, Object> serialized, List<? extends RoleMessage> messages, UUID runId, UUID parentRunId, Map<String, Object> kwargs){
 
     }
+
     default void onChainStart(Map<String, Object> serialized, Map<String, Object> inputs, UUID runId, UUID parentRunId, Map<String, Object> kwargs){
 
     }

@@ -28,7 +28,7 @@ public class CallbackWrapper extends BaseCallbackHandler{
     }
 
     @Override
-    public void onChatModelStart(Map<String, Object> serialized, List<List<RoleMessage>> messages, UUID runId, UUID parentRunId, Map<String, Object> kwargs) {
+    public void onChatModelStart(Map<String, Object> serialized, List<? extends RoleMessage> messages, UUID runId, UUID parentRunId, Map<String, Object> kwargs) {
         callbacks.forEach(callback -> callback.onChatModelStart(serialized, messages, runId, parentRunId, kwargs));
     }
 
