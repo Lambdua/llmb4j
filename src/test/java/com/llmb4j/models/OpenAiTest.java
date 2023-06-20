@@ -242,4 +242,11 @@ public class OpenAiTest {
         Assert.isTrue(finalResponseMsg.getContent().contains("20"));
     }
 
+    @Test
+    public void predictCompletionTest(){
+        String template = "床前明月光";
+        String s = openAiLLM.predictCompletion(template, null);
+        Assert.isTrue(s.contains("疑是地上霜"));
+    }
+
 }
