@@ -78,8 +78,8 @@ public class CallbackWrapper extends BaseCallbackHandler{
     }
 
     @Override
-    public void on_text(String text, UUID runId, UUID parentRunId, Map<String, Object> kwargs) {
-        callbacks.forEach(callback -> callback.on_text(text, runId, parentRunId, kwargs));
+    public void onText(String text, UUID runId, UUID parentRunId, Map<String, Object> kwargs) {
+        callbacks.forEach(callback -> callback.onText(text, runId, parentRunId, kwargs));
     }
 
     @Override

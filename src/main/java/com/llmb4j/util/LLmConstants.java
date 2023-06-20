@@ -14,6 +14,7 @@ import java.time.Duration;
  **/
 public interface LLmConstants {
 
+
     String llmLogTypeKey = "llmLogType";
 
     Logger llmLogger = LoggerFactory.getLogger("aiChat");

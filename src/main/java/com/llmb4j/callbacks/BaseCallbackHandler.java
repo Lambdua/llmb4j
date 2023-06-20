@@ -6,7 +6,14 @@ package com.llmb4j.callbacks;
  **/
 public abstract class BaseCallbackHandler implements LLMManagerMixin, ChainManagerMixin, RunManagerMixin, ToolManagerMixin, CallbackManagerMixin {
 
-   public boolean throwError = true;
+   private boolean throwError = true;
 
 
+   public boolean isThrowError() {
+      return throwError;
+   }
+
+   public void setThrowError(boolean throwError) {
+      this.throwError = throwError;
+   }
 }

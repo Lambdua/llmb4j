@@ -56,17 +56,17 @@ public class OpenAiService {
      * @param timeout http read timeout, Duration.ZERO means no timeout
      */
     public OpenAiService(final String token, final Duration timeout) {
-        ObjectMapper mapper = defaultObjectMapper();
+        ObjectMapper objMapper = defaultObjectMapper();
         OkHttpClient client = defaultClient(token, timeout);
-        Retrofit retrofit = defaultRetrofit(client, mapper);
+        Retrofit retrofit = defaultRetrofit(client, objMapper);
         this.api = retrofit.create(OpenAiApi.class);
     }
 
     public OpenAiService(final String token, final Duration timeout, final String baseUrl, PoolProperties poolProperties) {
         this.baseUrl = baseUrl;
-        ObjectMapper mapper = defaultObjectMapper();
+        ObjectMapper objMapper = defaultObjectMapper();
         OkHttpClient client = poolClient(token, timeout, poolProperties);
-        Retrofit retrofit = defaultRetrofit(client, mapper);
+        Retrofit retrofit = defaultRetrofit(client, objMapper);
         this.api = retrofit.create(OpenAiApi.class);
     }
 

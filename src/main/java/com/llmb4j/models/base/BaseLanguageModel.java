@@ -61,7 +61,7 @@ public interface BaseLanguageModel<C extends BaseLLMConfig> {
      * @author liangtao
      * @date 2023/6/15
      */
-    default <P extends BaseLLMChatPayload> List<? extends RoleMessage> generateChat(P payload) {
+    default <P extends BaseLLMChatPayload> List<RoleMessage> generateChat(P payload) {
         BaseLLMCompletionPayload completionPayload = new BaseLLMCompletionPayload();
         completionPayload.setModelName(getConfig().getDefaultCompletionModelName());
         completionPayload.setPrompts(List.of(ChatMsgUtil.getBufferString(payload.chatHistory)));

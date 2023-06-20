@@ -6,9 +6,9 @@ package com.llmb4j.exception;
  * @date 2023年06月06 15:05
  **/
 public class OutputParserException extends RuntimeException{
-    private String llmSendMsg;
+    private final String llmSendMsg;
 
-    private String llmOutMsg;
+    private final String llmOutMsg;
 
     public OutputParserException(String llmSendMsg, String llmOutMsg) {
         this.llmSendMsg = llmSendMsg;

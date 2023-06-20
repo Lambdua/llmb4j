@@ -8,7 +8,7 @@ import java.util.UUID;
  * @date 2023年06月07 09:47
  **/
 public interface RunManagerMixin {
-    default void on_text(String text, UUID runId, UUID parentRunId, Map<String, Object> kwargs){
+    default void onText(String text, UUID runId, UUID parentRunId, Map<String, Object> kwargs) {
 
     }
 

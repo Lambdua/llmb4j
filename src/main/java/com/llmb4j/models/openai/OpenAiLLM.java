@@ -108,7 +108,7 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
 
 
     @Override
-    public <P extends BaseLLMChatPayload> List<? extends RoleMessage> generateChat(P payload) {
+    public <P extends BaseLLMChatPayload> List<RoleMessage> generateChat(P payload) {
         if (payload instanceof OpenAiLLmChatPayload openAiChatPayload) {
             Assert.isTrue(payload.chatHistory.stream().allMatch(OpenAiRoleMessage.class::isInstance),
                     "OpenAiLLmChatPayload.chatHistory must be OpenAiRoleMessage");
@@ -117,7 +117,7 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
                 callBack.addCallback(openAiChatPayload.callbackHandler);
             }
             try {
-                if (payload.verbose){
+                if (payload.verbose) {
                     MDC.put(LLmConstants.llmLogTypeKey, LLmLogStyle.CONFIG.type);
                     llmLogger.info("generateChat configPayload: {}",payload);
                 }
@@ -196,14 +196,14 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
                         MDC.put(LLmConstants.llmLogTypeKey, LLmLogStyle.OUTPUT.type);
                         llmLogger.info(content);
                     }
-                    return new OpenAiRoleMessage(content, ChatRole.AI,
+                    return (RoleMessage) new OpenAiRoleMessage(content, ChatRole.AI,
                             MapUtil.getStr(itemInfo, "name"),
                             functionCall
                     );
                 }).toList();
             } catch (Exception e) {
                 callBack.onLlmError(e, null, null, null);
-                if (callBack.throwError) {
+                if (callBack.isThrowError()) {
                     throw new ChatLLMException(e);
                 }
             }finally {
@@ -272,7 +272,7 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
                 callBack.onLlmEnd(result, null, null, null);
                 if (payload.verbose) {
                     MDC.put(LLmConstants.llmLogTypeKey, LLmLogStyle.INPUT.type);
-                    allPrompts.forEach(input -> llmLogger.info(input));
+                    allPrompts.forEach(llmLogger::info);
                     //callback中可能修改了result
                     List<List<Generation>> finalGenerations = result.getGenerations();
                     for (int i = 0; i < finalGenerations.size(); i++) {
@@ -286,7 +286,7 @@ public class OpenAiLLM implements BaseLanguageModel<OpenAiLLmConfig> {
                 return result;
             } catch (Exception e) {
                 callBack.onLlmError(e, null, null, null);
-                if (callBack.throwError) {
+                if (callBack.isThrowError()) {
                     throw new ChatLLMException(e);
                 }
                 return null;

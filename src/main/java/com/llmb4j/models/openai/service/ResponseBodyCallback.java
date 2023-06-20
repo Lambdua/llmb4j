@@ -11,7 +11,6 @@ import retrofit2.HttpException;
 import retrofit2.Response;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
@@ -33,7 +32,6 @@ public class ResponseBodyCallback implements Callback<ResponseBody> {
 
     @Override
     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-        BufferedReader reader = null;
 
         try {
             if (!response.isSuccessful()) {
@@ -52,41 +50,33 @@ public class ResponseBodyCallback implements Callback<ResponseBody> {
             }
 
             InputStream in = response.body().byteStream();
-            reader = new BufferedReader(new InputStreamReader(in));
-            String line;
-            SSE sse = null;
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+                String line;
+                SSE sse = null;
 
-            while ((line = reader.readLine()) != null) {
-                if (line.startsWith("data:")) {
-                    String data = line.substring(5).trim();
-                    sse = new SSE(data);
-                } else if (line.equals("") && sse != null) {
-                    if (sse.isDone()) {
-                        if (emitDone) {
-                            emitter.onNext(sse);
+                while ((line = reader.readLine()) != null) {
+                    if (line.startsWith("data:")) {
+                        String data = line.substring(5).trim();
+                        sse = new SSE(data);
+                    } else if (line.equals("") && sse != null) {
+                        if (sse.isDone()) {
+                            if (emitDone) {
+                                emitter.onNext(sse);
+                            }
+                            break;
                         }
-                        break;
-                    }
 
-                    emitter.onNext(sse);
-                    sse = null;
-                } else {
-                    throw new SSEFormatException("Invalid sse format! " + line);
+                        emitter.onNext(sse);
+                        sse = null;
+                    } else {
+                        throw new SSEFormatException("Invalid sse format! " + line);
+                    }
                 }
             }
-
             emitter.onComplete();
 
         } catch (Throwable t) {
             onFailure(call, t);
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    // do nothing
-                }
-            }
         }
     }
 

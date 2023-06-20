@@ -4,7 +4,7 @@ import cn.hutool.core.convert.Convert;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import com.llmb4j.exception.PyScriptException;
 import jep.JepConfig;
 import jep.MainInterpreter;
@@ -19,11 +19,15 @@ import java.util.Map;
 
 /**
  * 执行python脚本封装
+ *
  * @author LiangTao
  * @date 2023年04月26 13:44
  **/
 @Slf4j
 public class PyScript {
+    private PyScript() {
+        throw new IllegalStateException("工具类，不允许实例化");
+    }
 
     private static final JepConfig jepConf = new JepConfig();
 
@@ -62,7 +66,7 @@ public class PyScript {
 
 
     public static int openAiTokenLen(String s, String modelName) {
-        if (StrUtil.isEmpty(s)) {
+        if (CharSequenceUtil.isEmpty(s)) {
             return 0;
         }
         try (SharedInterpreter sharedInterpreter = new SharedInterpreter()) {
@@ -76,7 +80,7 @@ public class PyScript {
     }
 
     public static List<Integer> tokenIds(String text,String modelName){
-        if (StrUtil.isEmpty(text)) {
+        if (CharSequenceUtil.isEmpty(text)) {
             return Collections.emptyList();
         }
         try (SharedInterpreter sharedInterpreter = new SharedInterpreter()) {

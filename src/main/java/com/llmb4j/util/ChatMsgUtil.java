@@ -14,6 +14,10 @@ import java.util.Map;
  * @date 2023年06月15 13:23
  **/
 public class ChatMsgUtil {
+    private ChatMsgUtil() {
+        throw new IllegalStateException("工具类，不允许实例化");
+    }
+
     public static Map<String, String> msgToMap(RoleMessage msg) {
         return Map.of("type", msg.type(), "content", msg.getContent());
     }

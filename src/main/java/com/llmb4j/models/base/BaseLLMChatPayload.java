@@ -1,10 +1,7 @@
 package com.llmb4j.models.base;
 
 import com.llmb4j.prompt.base.RoleMessage;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.List;
 
@@ -16,6 +13,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
 @ToString(callSuper = true)
 public class BaseLLMChatPayload extends BaseLLMPayload{
     /**

@@ -2,6 +2,7 @@ package com.llmb4j.models.openai;
 
 import com.llmb4j.models.base.BaseLLMCompletionPayload;
 import com.llmb4j.models.openai.completion.CompletionRequest;
+import lombok.EqualsAndHashCode;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -13,6 +14,7 @@ import java.util.Map;
  **/
 @Setter
 @ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public class OpenAiLLmCompletionPayload extends BaseLLMCompletionPayload {
 
     /**
@@ -95,5 +97,6 @@ public class OpenAiLLmCompletionPayload extends BaseLLMCompletionPayload {
      * https://beta.openai.com/docs/api-reference/completions/create#completions/create-logit_bias
      */
     Map<String, Integer> logitBias;
+
 
 }
